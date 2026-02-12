@@ -19,7 +19,8 @@
       "Bash(adb shell am start:*)",
       "Bash(adb shell pidof:*)",
       "Bash(adb install:*)",
-      "Bash(adb shell am force-stop:*)"
+      "Bash(adb shell am force-stop:*)",
+      "WebFetch(domain:coffey.codes)"
     ]
   }
 }

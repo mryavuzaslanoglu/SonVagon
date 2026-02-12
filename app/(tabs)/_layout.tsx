@@ -84,6 +84,16 @@ export default function TabLayout() {
           ),
         }}
       />
+      <Tabs.Screen
+        name="planner"
+        options={{
+          title: "Ne Zaman?",
+          headerTitle: "Ne Zaman Kalkay\u0131m?",
+          tabBarIcon: ({ color, size }) => (
+            <Ionicons name="time-outline" size={size} color={color} />
+          ),
+        }}
+      />
     </Tabs>
   );
 }

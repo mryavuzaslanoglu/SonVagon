@@ -49,6 +49,24 @@ export function findNearestStation(
 }
 
 /**
+ * Find the nearest N stations to the given coordinates.
+ */
+export function findNearestNStations(
+  latitude: number,
+  longitude: number,
+  stationsList: Station[],
+  count: number = 3,
+): { station: Station; distanceMeters: number }[] {
+  return stationsList
+    .map((s) => ({
+      station: s,
+      distanceMeters: getDistanceMeters(latitude, longitude, s.latitude, s.longitude),
+    }))
+    .sort((a, b) => a.distanceMeters - b.distanceMeters)
+    .slice(0, count);
+}
+
+/**
  * Format distance for display.
  */
 export function formatDistance(meters: number): string {

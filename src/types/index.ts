@@ -86,3 +86,29 @@ export interface ActiveTrain {
   latitude: number;
   longitude: number;
 }
+
+// ─── Departure Planner ─────────────────────────────────────
+
+export type BufferTime = 0 | 3 | 5 | 10;
+
+export interface NearbyStationInfo {
+  station: Station;
+  distanceMeters: number;
+  walkingDurationSeconds: number | null;
+  walkingDurationText: string | null;
+}
+
+export interface CatchableTrain {
+  train: UpcomingTrain;
+  leaveByTime: string;
+  leaveByMinutesFromNow: number;
+  arrivalAtStationTime: string;
+  bufferMinutes: number;
+  isRecommended: boolean;
+}
+
+export interface StationDeparturePlan {
+  stationInfo: NearbyStationInfo;
+  catchableTrains: CatchableTrain[];
+  hasTrains: boolean;
+}
