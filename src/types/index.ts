@@ -16,6 +16,8 @@ export interface Station {
   schedule: {
     toHalkali: StationSchedule | null;
     toGebze: StationSchedule | null;
+    shortToHalkali?: StationSchedule | null; // Ataköy-Pendik short line, towards Ataköy
+    shortToGebze?: StationSchedule | null;   // Ataköy-Pendik short line, towards Pendik
   };
 }
 

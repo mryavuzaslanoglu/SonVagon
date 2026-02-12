@@ -1,11 +1,8 @@
 export const SCHEDULE_CONFIG = {
-  normalIntervalMinutes: 10,
-  fastIntervalMinutes: 8,
-  // Stations with 8-minute intervals (Halkalı - Ataköy section)
-  fastIntervalStationIds: [
-    'halkali', 'mustafa-kemal', 'kucukcekmece', 'florya-akvaryum',
-    'florya', 'yesilkoy', 'yesilyurt', 'atakoy',
-  ],
+  // Full line (Halkalı-Gebze) interval
+  fullLineInterval: 15,
+  // Short line (Ataköy-Pendik) interval
+  shortLineInterval: 8,
   // Map region for initial view
   mapRegion: {
     latitude: 40.9800,
@@ -15,14 +12,11 @@ export const SCHEDULE_CONFIG = {
   },
   // Marmaray line color
   lineColor: '#E53935',
-  // Destination labels based on route type
+  // Destination labels
   destinations: {
-    toGebze: {
-      short: 'Ataköy',
-      full: 'Gebze',
-    },
-    toHalkali: {
-      full: 'Halkalı',
-    },
+    fullToGebze: 'Gebze',
+    fullToHalkali: 'Halkalı',
+    shortToGebze: 'Pendik',
+    shortToHalkali: 'Ataköy',
   },
 };
