@@ -1,3 +1,5 @@
+import { MIDNIGHT_THRESHOLD_MINUTES, MINUTES_IN_DAY } from '@/constants/time';
+
 /**
  * Parse "HH:MM" string to total minutes since midnight.
  * Handles times past midnight (e.g., "00:30" after "23:50" is treated as next day = 1470 min).
@@ -11,7 +13,7 @@ export function parseTimeToMinutes(time: string): number {
  * Convert total minutes to "HH:MM" string.
  */
 export function minutesToTimeString(totalMinutes: number): string {
-  const normalized = ((totalMinutes % 1440) + 1440) % 1440;
+  const normalized = ((totalMinutes % MINUTES_IN_DAY) + MINUTES_IN_DAY) % MINUTES_IN_DAY;
   const h = Math.floor(normalized / 60);
   const m = normalized % 60;
   return `${h.toString().padStart(2, '0')}:${m.toString().padStart(2, '0')}`;
@@ -59,5 +61,5 @@ export function formatTimeDisplay(time: string): string {
  */
 export function isAfterMidnight(time: string): boolean {
   const minutes = parseTimeToMinutes(time);
-  return minutes < 300; // Before 05:00 is considered "after midnight" (next day)
+  return minutes < MIDNIGHT_THRESHOLD_MINUTES; // Before 05:00 is considered "after midnight" (next day)
 }

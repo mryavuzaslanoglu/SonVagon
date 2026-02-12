@@ -1,23 +1,21 @@
 import React, { useState, useMemo, useCallback } from 'react';
-import { View, Text, SectionList, StyleSheet } from 'react-native';
-import { useRouter } from 'expo-router';
+import { View, Text, SectionList } from 'react-native';
 import { Ionicons } from '@expo/vector-icons';
-import { Spacing } from '../../src/constants/theme';
-import { useColors } from '../../src/contexts/ThemeContext';
-import { stations } from '../../src/data/stations';
-import { useCurrentTime } from '../../src/hooks/useCurrentTime';
-import { getStationCountdowns, getUpcomingTrains } from '../../src/utils/scheduleCalculator';
-import { StationCard } from '../../src/components/StationCard';
-import { SearchBar } from '../../src/components/SearchBar';
-import { useFavoritesContext } from '../../src/contexts/FavoritesContext';
-import { StationSection, Station } from '../../src/types';
+import { StyleSheet } from 'react-native-unistyles';
+import { stations } from '@/data/stations';
+import { useMinuteKey } from '@/stores';
+import { useFavoritesStore } from '@/stores/useFavoritesStore';
+import { useStationNavigation } from '@/features/stations/hooks/useStationNavigation';
+import { useStationCardRenderer } from '@/hooks/useStationCardRenderer';
+import { SearchBar } from '@/components/SearchBar';
+import { StationSection } from '@/types';
 
 export default function StationsScreen() {
-  const colors = useColors();
-  const router = useRouter();
-  const now = useCurrentTime();
+  const { navigateToStation } = useStationNavigation();
+  const minuteKey = useMinuteKey();
   const [searchQuery, setSearchQuery] = useState('');
-  const { toggleFavorite, isFavorite } = useFavoritesContext();
+  const toggleFavorite = useFavoritesStore((s) => s.toggleFavorite);
+  const isFavorite = useFavoritesStore((s) => s.isFavorite);
 
   const sections = useMemo((): StationSection[] => {
     const filtered = searchQuery
@@ -31,63 +29,39 @@ export default function StationsScreen() {
     const asya = filtered.filter((s) => s.side === 'asya');
 
     const result: StationSection[] = [];
-    if (avrupa.length > 0) result.push({ title: 'Avrupa Yakasi', data: avrupa, type: 'avrupa' });
-    if (asya.length > 0) result.push({ title: 'Anadolu Yakasi', data: asya, type: 'asya' });
+    if (avrupa.length > 0) result.push({ title: 'Avrupa Yakası', data: avrupa, type: 'avrupa' });
+    if (asya.length > 0) result.push({ title: 'Anadolu Yakası', data: asya, type: 'asya' });
     return result;
   }, [searchQuery]);
 
-  const handleStationPress = useCallback(
-    (stationId: string) => {
-      router.push({ pathname: '/station/[id]', params: { id: stationId } });
-    },
-    [router]
-  );
-
-  const renderItem = useCallback(
-    ({ item }: { item: Station }) => {
-      const countdowns = getStationCountdowns(item, now);
-      const upH = getUpcomingTrains(item, 'toHalkali', now, 4);
-      const upG = getUpcomingTrains(item, 'toGebze', now, 4);
-      return (
-        <StationCard
-          station={item}
-          toHalkali={countdowns.toHalkali}
-          toGebze={countdowns.toGebze}
-          upcomingHalkali={upH}
-          upcomingGebze={upG}
-          onPress={() => handleStationPress(item.id)}
-          isFavorite={isFavorite(item.id)}
-          onToggleFavorite={toggleFavorite}
-        />
-      );
-    },
-    [now, handleStationPress, isFavorite, toggleFavorite]
-  );
+  const renderItem = useStationCardRenderer({
+    navigateToStation,
+    isFavorite,
+    toggleFavorite,
+    minuteKey,
+  });
 
   const renderSectionHeader = useCallback(
     ({ section }: { section: StationSection }) => {
       const isAvrupa = section.type === 'avrupa';
-      const dotColor = isAvrupa ? colors.avrupaBadge : colors.asyaBadge;
-      const bgColor = isAvrupa ? colors.avrupaBadgeLight : colors.asyaBadgeLight;
-
       return (
-        <View style={[styles.sectionHeader, { backgroundColor: colors.background }]}>
-          <View style={[styles.sectionIcon, { backgroundColor: bgColor }]}>
-            <Ionicons name="globe-outline" size={14} color={dotColor} />
+        <View style={styles.sectionHeader}>
+          <View style={styles.sectionIcon(isAvrupa)}>
+            <Ionicons name="globe-outline" size={14} color={isAvrupa ? styles.avrupaColor.color : styles.asyaColor.color} />
           </View>
-          <Text style={[styles.sectionTitle, { color: colors.text }]}>{section.title}</Text>
-          <View style={[styles.sectionLine, { backgroundColor: dotColor + '20' }]} />
-          <Text style={[styles.sectionCount, { color: dotColor }]}>
+          <Text style={styles.sectionTitle}>{section.title}</Text>
+          <View style={styles.sectionLine(isAvrupa)} />
+          <Text style={styles.sectionCount(isAvrupa)}>
             {section.data.length}
           </Text>
         </View>
       );
     },
-    [colors]
+    []
   );
 
   return (
-    <View style={[styles.container, { backgroundColor: colors.background }]}>
+    <View style={styles.container}>
       <SearchBar value={searchQuery} onChangeText={setSearchQuery} />
       <SectionList
         sections={sections}
@@ -105,21 +79,36 @@ export default function StationsScreen() {
   );
 }
 
-const styles = StyleSheet.create({
-  container: { flex: 1 },
-  listContent: { paddingBottom: Spacing.xxxl },
+const styles = StyleSheet.create((theme) => ({
+  container: { flex: 1, backgroundColor: theme.colors.background },
+  listContent: { paddingBottom: theme.spacing.xxxl },
   sectionHeader: {
     flexDirection: 'row',
     alignItems: 'center',
-    paddingHorizontal: Spacing.lg,
-    paddingVertical: Spacing.sm + 2,
-    gap: Spacing.sm,
+    paddingHorizontal: theme.spacing.lg,
+    paddingVertical: theme.spacing.sm + 2,
+    gap: theme.spacing.sm,
+    backgroundColor: theme.colors.background,
   },
-  sectionIcon: {
-    width: 24, height: 24, borderRadius: 12,
-    alignItems: 'center', justifyContent: 'center',
-  },
-  sectionTitle: { fontSize: 14, fontWeight: '700' },
-  sectionLine: { flex: 1, height: 1 },
-  sectionCount: { fontSize: 13, fontWeight: '700' },
-});
+  sectionIcon: (isAvrupa: boolean) => ({
+    width: 24,
+    height: 24,
+    borderRadius: 12,
+    alignItems: 'center' as const,
+    justifyContent: 'center' as const,
+    backgroundColor: isAvrupa ? theme.colors.avrupaBadgeLight : theme.colors.asyaBadgeLight,
+  }),
+  sectionTitle: { fontSize: 14, fontWeight: '700', color: theme.colors.text },
+  sectionLine: (isAvrupa: boolean) => ({
+    flex: 1,
+    height: 1,
+    backgroundColor: (isAvrupa ? theme.colors.avrupaBadge : theme.colors.asyaBadge) + '20',
+  }),
+  sectionCount: (isAvrupa: boolean) => ({
+    fontSize: 13,
+    fontWeight: '700' as const,
+    color: isAvrupa ? theme.colors.avrupaBadge : theme.colors.asyaBadge,
+  }),
+  avrupaColor: { color: theme.colors.avrupaBadge },
+  asyaColor: { color: theme.colors.asyaBadge },
+}));

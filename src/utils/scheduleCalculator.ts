@@ -1,6 +1,7 @@
 import { Station, Direction, NextTrainInfo, StationSchedule, TrainRouteType, UpcomingTrain } from '../types';
 import { parseTimeToMinutes, minutesToTimeString } from './timeUtils';
 import { SCHEDULE_CONFIG } from '../data/scheduleConfig';
+import { MIDNIGHT_THRESHOLD_MINUTES, MINUTES_IN_DAY } from '@/constants/time';
 
 // ─── Helpers ──────────────────────────────────────────────────
 
@@ -43,14 +44,14 @@ function calcNextFromSchedule(
 
   const firstMinutes = parseTimeToMinutes(firstTrain);
   let lastMinutes = parseTimeToMinutes(lastTrain);
-  if (lastMinutes < firstMinutes) lastMinutes += 1440;
+  if (lastMinutes < firstMinutes) lastMinutes += MINUTES_IN_DAY;
 
   const nowMinutes = now.getHours() * 60 + now.getMinutes();
   const nowSeconds = now.getSeconds();
 
   let adjustedNow = nowMinutes;
-  if (nowMinutes < 300 && firstMinutes > 300) {
-    adjustedNow = nowMinutes + 1440;
+  if (nowMinutes < MIDNIGHT_THRESHOLD_MINUTES && firstMinutes > MIDNIGHT_THRESHOLD_MINUTES) {
+    adjustedNow = nowMinutes + MINUTES_IN_DAY;
   }
 
   // Before service
@@ -172,14 +173,14 @@ function getTrainsFromSchedule(
 
   const firstMinutes = parseTimeToMinutes(firstTrain);
   let lastMinutes = parseTimeToMinutes(lastTrain);
-  if (lastMinutes < firstMinutes) lastMinutes += 1440;
+  if (lastMinutes < firstMinutes) lastMinutes += MINUTES_IN_DAY;
 
   const nowMinutes = now.getHours() * 60 + now.getMinutes();
   const nowSeconds = now.getSeconds();
 
   let adjustedNow = nowMinutes;
-  if (nowMinutes < 300 && firstMinutes > 300) {
-    adjustedNow = nowMinutes + 1440;
+  if (nowMinutes < MIDNIGHT_THRESHOLD_MINUTES && firstMinutes > MIDNIGHT_THRESHOLD_MINUTES) {
+    adjustedNow = nowMinutes + MINUTES_IN_DAY;
   }
 
   // Before service → show from first train

@@ -12,7 +12,14 @@
       "Bash(npx tsc:*)",
       "Bash(npx expo export:*)",
       "Bash(npx expo install:*)",
-      "Bash(node -e:*)"
+      "Bash(node -e:*)",
+      "WebFetch(domain:docs.expo.dev)",
+      "Bash(yarn:*)",
+      "Bash(adb logcat:*)",
+      "Bash(adb shell am start:*)",
+      "Bash(adb shell pidof:*)",
+      "Bash(adb install:*)",
+      "Bash(adb shell am force-stop:*)"
     ]
   }
 }

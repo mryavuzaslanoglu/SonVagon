@@ -1,31 +1,32 @@
 import React, { useCallback, useRef } from 'react';
-import { View, StyleSheet } from 'react-native';
+import { View } from 'react-native';
 import MapView, { Polyline, PROVIDER_GOOGLE } from 'react-native-maps';
-import { useRouter } from 'expo-router';
-import { MapLightStyle, MapDarkStyle } from '../../src/constants/theme';
-import { useColors, useIsDark } from '../../src/contexts/ThemeContext';
-import { stations, marmarayPolyline } from '../../src/data/stations';
-import { SCHEDULE_CONFIG } from '../../src/data/scheduleConfig';
-import { useCurrentTime } from '../../src/hooks/useCurrentTime';
-import { getStationCountdowns } from '../../src/utils/scheduleCalculator';
-import { StationMarker } from '../../src/components/StationMarker';
+import { StyleSheet } from 'react-native-unistyles';
+import { useIsDark, useNow } from '@/stores';
+import { useStationNavigation } from '@/features/stations/hooks/useStationNavigation';
+import { useAllActiveTrains, TrainMarker } from '@/features/live-tracking';
+import { stations, marmarayPolyline } from '@/data/stations';
+import { SCHEDULE_CONFIG } from '@/data/scheduleConfig';
+import { MapLightStyle, MapDarkStyle } from '@/theme/mapStyles';
+import { getStationCountdowns } from '@/utils/scheduleCalculator';
+import { StationMarker } from '@/components/StationMarker';
 
 export default function MapScreen() {
-  const colors = useColors();
   const isDark = useIsDark();
-  const router = useRouter();
-  const now = useCurrentTime();
+  const now = useNow();
+  const { navigateToStation } = useStationNavigation();
+  const activeTrains = useAllActiveTrains();
   const mapRef = useRef<MapView>(null);
 
   const handleCalloutPress = useCallback(
     (stationId: string) => {
-      router.push({ pathname: '/station/[id]', params: { id: stationId } });
+      navigateToStation(stationId);
     },
-    [router]
+    [navigateToStation]
   );
 
   return (
-    <View style={[styles.container, { backgroundColor: colors.background }]}>
+    <View style={styles.container}>
       <MapView
         ref={mapRef}
         style={styles.map}
@@ -52,12 +53,15 @@ export default function MapScreen() {
             />
           );
         })}
+        {activeTrains.map((train) => (
+          <TrainMarker key={train.trainId} train={train} />
+        ))}
       </MapView>
     </View>
   );
 }
 
-const styles = StyleSheet.create({
-  container: { flex: 1 },
+const styles = StyleSheet.create((theme) => ({
+  container: { flex: 1, backgroundColor: theme.colors.background },
   map: { flex: 1 },
-});
+}));

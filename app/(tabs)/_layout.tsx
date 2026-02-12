@@ -1,35 +1,32 @@
 import { Tabs } from 'expo-router';
 import { TouchableOpacity } from 'react-native';
 import { Ionicons } from '@expo/vector-icons';
-import { Shadows } from '../../src/constants/theme';
-import { useColors, useIsDark, useToggleTheme } from '../../src/contexts/ThemeContext';
+import { StyleSheet } from 'react-native-unistyles';
+import { useIsDark, useToggleTheme } from '@/stores';
 
 export default function TabLayout() {
-  const colors = useColors();
   const isDark = useIsDark();
   const toggleTheme = useToggleTheme();
 
   return (
     <Tabs
       screenOptions={{
-        tabBarActiveTintColor: colors.tabActive,
-        tabBarInactiveTintColor: colors.tabInactive,
+        tabBarActiveTintColor: styles.tabActive.color,
+        tabBarInactiveTintColor: styles.tabInactive.color,
         tabBarStyle: {
-          backgroundColor: colors.tabBarBg,
-          borderTopColor: colors.tabBarBorder,
+          ...styles.tabBar,
           borderTopWidth: 0.5,
           paddingBottom: 4,
-          ...Shadows.sm,
         },
         tabBarLabelStyle: {
           fontSize: 11,
           fontWeight: '600',
         },
         headerStyle: {
-          backgroundColor: colors.background,
+          backgroundColor: styles.header.backgroundColor,
         },
         headerShadowVisible: false,
-        headerTintColor: colors.text,
+        headerTintColor: styles.header.color,
         headerTitleStyle: {
           fontWeight: '700',
           fontSize: 18,
@@ -44,18 +41,20 @@ export default function TabLayout() {
           headerTitleStyle: {
             fontWeight: '800',
             fontSize: 22,
-            color: colors.primary,
+            color: styles.brandTitle.color,
           },
           headerRight: () => (
             <TouchableOpacity
               onPress={toggleTheme}
               hitSlop={{ top: 10, bottom: 10, left: 10, right: 10 }}
               style={{ marginRight: 16 }}
+              accessibilityRole="button"
+              accessibilityLabel={isDark ? 'Açık temaya geç' : 'Koyu temaya geç'}
             >
               <Ionicons
                 name={isDark ? 'sunny' : 'moon'}
                 size={22}
-                color={colors.textSecondary}
+                color={styles.themeIcon.color}
               />
             </TouchableOpacity>
           ),
@@ -86,3 +85,27 @@ export default function TabLayout() {
     </Tabs>
   );
 }
+
+const styles = StyleSheet.create((theme) => ({
+  tabBar: {
+    backgroundColor: theme.colors.tabBarBg,
+    borderColor: theme.colors.tabBarBorder,
+    ...theme.shadows.sm,
+  },
+  tabActive: {
+    color: theme.colors.tabActive,
+  },
+  tabInactive: {
+    color: theme.colors.tabInactive,
+  },
+  header: {
+    backgroundColor: theme.colors.background,
+    color: theme.colors.text,
+  },
+  brandTitle: {
+    color: theme.colors.primary,
+  },
+  themeIcon: {
+    color: theme.colors.textSecondary,
+  },
+}));

@@ -1,10 +1,11 @@
 import { Stack } from 'expo-router';
 import { StatusBar } from 'expo-status-bar';
-import { FavoritesProvider } from '../src/contexts/FavoritesContext';
-import { ThemeProvider, useColors, useIsDark } from '../src/contexts/ThemeContext';
+import { SafeAreaProvider } from 'react-native-safe-area-context';
+import { useTimeTick, useIsDark } from '@/stores';
+import { ErrorBoundary } from '@/shared/components/ErrorBoundary';
+import { StyleSheet } from 'react-native-unistyles';
 
 function RootStack() {
-  const colors = useColors();
   const isDark = useIsDark();
 
   return (
@@ -12,10 +13,10 @@ function RootStack() {
       <StatusBar style={isDark ? 'light' : 'dark'} />
       <Stack
         screenOptions={{
-          headerStyle: { backgroundColor: colors.background },
-          headerTintColor: colors.text,
+          headerStyle: { backgroundColor: styles.header.backgroundColor },
+          headerTintColor: styles.header.color,
           headerTitleStyle: { fontWeight: '600' },
-          contentStyle: { backgroundColor: colors.background },
+          contentStyle: { backgroundColor: styles.header.backgroundColor },
           animation: 'slide_from_right',
           headerShadowVisible: false,
         }}
@@ -34,11 +35,20 @@ function RootStack() {
 }
 
 export default function RootLayout() {
+  useTimeTick();
+
   return (
-    <ThemeProvider>
-      <FavoritesProvider>
+    <SafeAreaProvider>
+      <ErrorBoundary>
         <RootStack />
-      </FavoritesProvider>
-    </ThemeProvider>
+      </ErrorBoundary>
+    </SafeAreaProvider>
   );
 }
+
+const styles = StyleSheet.create((theme) => ({
+  header: {
+    backgroundColor: theme.colors.background,
+    color: theme.colors.text,
+  },
+}));

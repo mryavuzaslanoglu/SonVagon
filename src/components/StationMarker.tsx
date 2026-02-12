@@ -1,8 +1,7 @@
 import React, { memo } from 'react';
-import { View, Text, StyleSheet } from 'react-native';
+import { View, Text } from 'react-native';
 import { Marker, Callout } from 'react-native-maps';
-import { BorderRadius, Spacing, Shadows } from '../constants/theme';
-import { useColors } from '../contexts/ThemeContext';
+import { StyleSheet } from 'react-native-unistyles';
 import { Station, NextTrainInfo } from '../types';
 
 interface Props {
@@ -18,43 +17,37 @@ export const StationMarker = memo(function StationMarker({
   toGebze,
   onCalloutPress,
 }: Props) {
-  const colors = useColors();
-
   return (
     <Marker
       coordinate={{ latitude: station.latitude, longitude: station.longitude }}
       tracksViewChanges={false}
       onCalloutPress={onCalloutPress}
     >
-      <View style={[styles.markerOuter, { backgroundColor: colors.white }, Shadows.card]}>
-        <View style={[styles.markerInner, { backgroundColor: colors.marmaray }]} />
+      <View style={styles.markerOuter}>
+        <View style={styles.markerInner} />
       </View>
       <Callout tooltip>
-        <View style={[styles.callout, { backgroundColor: colors.surface }, Shadows.elevated]}>
-          <Text style={[styles.calloutTitle, { color: colors.text }]}>{station.name}</Text>
+        <View style={styles.callout}>
+          <Text style={styles.calloutTitle}>{station.name}</Text>
           <View style={styles.calloutRow}>
             {station.schedule.toHalkali && (
               <View style={styles.calloutDir}>
-                <Text style={[styles.calloutLabel, { color: colors.halkaliBadge }]}>
-                  ← Halkalı
-                </Text>
-                <Text style={[styles.calloutTime, { color: colors.text }]}>
+                <Text style={styles.calloutLabelHalkali}>← Halkalı</Text>
+                <Text style={styles.calloutTime}>
                   {formatCalloutTime(toHalkali)}
                 </Text>
               </View>
             )}
             {station.schedule.toGebze && (
               <View style={styles.calloutDir}>
-                <Text style={[styles.calloutLabel, { color: colors.gebzeBadge }]}>
-                  Gebze →
-                </Text>
-                <Text style={[styles.calloutTime, { color: colors.text }]}>
+                <Text style={styles.calloutLabelGebze}>Gebze →</Text>
+                <Text style={styles.calloutTime}>
                   {formatCalloutTime(toGebze)}
                 </Text>
               </View>
             )}
           </View>
-          <Text style={[styles.calloutHint, { color: colors.textMuted }]}>Detay icin dokun</Text>
+          <Text style={styles.calloutHint}>Detay için dokun</Text>
         </View>
       </Callout>
     </Marker>
@@ -68,51 +61,66 @@ function formatCalloutTime(info: NextTrainInfo): string {
   return `${info.remainingMinutes} dk`;
 }
 
-const styles = StyleSheet.create({
+const styles = StyleSheet.create((theme) => ({
   markerOuter: {
     width: 20,
     height: 20,
     borderRadius: 10,
     alignItems: 'center',
     justifyContent: 'center',
+    backgroundColor: theme.colors.white,
+    ...theme.shadows.card,
   },
   markerInner: {
     width: 12,
     height: 12,
     borderRadius: 6,
+    backgroundColor: theme.colors.marmaray,
   },
   callout: {
-    borderRadius: BorderRadius.lg,
-    padding: Spacing.md,
+    borderRadius: theme.borderRadius.lg,
+    padding: theme.spacing.md,
     minWidth: 180,
+    backgroundColor: theme.colors.surface,
+    ...theme.shadows.elevated,
   },
   calloutTitle: {
     fontSize: 15,
     fontWeight: '700',
-    marginBottom: Spacing.sm,
+    marginBottom: theme.spacing.sm,
     textAlign: 'center',
+    color: theme.colors.text,
   },
   calloutRow: {
     flexDirection: 'row',
     justifyContent: 'space-around',
-    gap: Spacing.md,
+    gap: theme.spacing.md,
   },
   calloutDir: {
     alignItems: 'center',
   },
-  calloutLabel: {
+  calloutLabelHalkali: {
     fontSize: 11,
     fontWeight: '600',
     marginBottom: 2,
+    color: theme.colors.halkaliBadge,
+  },
+  calloutLabelGebze: {
+    fontSize: 11,
+    fontWeight: '600',
+    marginBottom: 2,
+    color: theme.colors.gebzeBadge,
   },
   calloutTime: {
     fontSize: 18,
     fontWeight: '700',
     fontVariant: ['tabular-nums'],
+    color: theme.colors.text,
   },
   calloutHint: {
     fontSize: 10,
     textAlign: 'center',
-    marginTop: Spacing.sm,
+    marginTop: theme.spacing.sm,
+    color: theme.colors.textMuted,
   },
-});
+}));

@@ -1,83 +1,59 @@
-import React, { useMemo, useCallback } from 'react';
-import { View, Text, FlatList, StyleSheet } from 'react-native';
-import { useRouter } from 'expo-router';
+import React, { useMemo } from 'react';
+import { View, Text, FlatList } from 'react-native';
 import { Ionicons } from '@expo/vector-icons';
-import { Spacing, BorderRadius, Shadows } from '../../src/constants/theme';
-import { useColors } from '../../src/contexts/ThemeContext';
-import { stations } from '../../src/data/stations';
-import { useCurrentTime } from '../../src/hooks/useCurrentTime';
-import { getStationCountdowns, getUpcomingTrains } from '../../src/utils/scheduleCalculator';
-import { StationCard } from '../../src/components/StationCard';
-import { useFavoritesContext } from '../../src/contexts/FavoritesContext';
-import { Station } from '../../src/types';
+import { StyleSheet } from 'react-native-unistyles';
+import { stations } from '@/data/stations';
+import { useMinuteKey } from '@/stores';
+import { useFavoritesStore, useFavoriteIds } from '@/stores/useFavoritesStore';
+import { useStationNavigation } from '@/features/stations/hooks/useStationNavigation';
+import { useStationCardRenderer } from '@/hooks/useStationCardRenderer';
 
 function EmptyState() {
-  const colors = useColors();
   return (
     <View style={styles.emptyContainer}>
-      <View style={[styles.emptyIconCircle, { backgroundColor: colors.favoriteGoldLight }, Shadows.card]}>
-        <Ionicons name="star-outline" size={48} color={colors.favoriteGold} />
+      <View style={styles.emptyIconCircle}>
+        <Ionicons name="star-outline" size={48} color={styles.emptyStarColor.color} />
       </View>
-      <Text style={[styles.emptyTitle, { color: colors.text }]}>Henuz Favori Yok</Text>
-      <Text style={[styles.emptySubtitle, { color: colors.textSecondary }]}>
-        Istasyonlar sekmesinden yildiza dokunarak{'\n'}favori istasyonlarinizi ekleyin
+      <Text style={styles.emptyTitle}>Henüz Favori Yok</Text>
+      <Text style={styles.emptySubtitle}>
+        İstasyonlar sekmesinden yıldıza dokunarak{'\n'}favori istasyonlarınızı ekleyin
       </Text>
     </View>
   );
 }
 
 export default function FavoritesScreen() {
-  const colors = useColors();
-  const router = useRouter();
-  const now = useCurrentTime();
-  const { favoriteIds, toggleFavorite, isFavorite } = useFavoritesContext();
+  const { navigateToStation } = useStationNavigation();
+  const minuteKey = useMinuteKey();
+  const favoriteIds = useFavoriteIds();
+  const toggleFavorite = useFavoritesStore((s) => s.toggleFavorite);
+  const isFavorite = useFavoritesStore((s) => s.isFavorite);
 
   const favoriteStations = useMemo(() => {
-    return stations.filter((s) => favoriteIds.has(s.id));
+    return stations.filter((s) => favoriteIds.includes(s.id));
   }, [favoriteIds]);
 
-  const handleStationPress = useCallback(
-    (stationId: string) => {
-      router.push({ pathname: '/station/[id]', params: { id: stationId } });
-    },
-    [router]
-  );
-
-  const renderItem = useCallback(
-    ({ item }: { item: Station }) => {
-      const countdowns = getStationCountdowns(item, now);
-      const upH = getUpcomingTrains(item, 'toHalkali', now, 4);
-      const upG = getUpcomingTrains(item, 'toGebze', now, 4);
-      return (
-        <StationCard
-          station={item}
-          toHalkali={countdowns.toHalkali}
-          toGebze={countdowns.toGebze}
-          upcomingHalkali={upH}
-          upcomingGebze={upG}
-          onPress={() => handleStationPress(item.id)}
-          isFavorite={isFavorite(item.id)}
-          onToggleFavorite={toggleFavorite}
-        />
-      );
-    },
-    [now, handleStationPress, isFavorite, toggleFavorite]
-  );
+  const renderItem = useStationCardRenderer({
+    navigateToStation,
+    isFavorite,
+    toggleFavorite,
+    minuteKey,
+  });
 
   if (favoriteStations.length === 0) {
     return (
-      <View style={[styles.container, { backgroundColor: colors.background }]}>
+      <View style={styles.container}>
         <EmptyState />
       </View>
     );
   }
 
   return (
-    <View style={[styles.container, { backgroundColor: colors.background }]}>
+    <View style={styles.container}>
       <View style={styles.headerBar}>
-        <View style={[styles.headerBadge, { backgroundColor: colors.favoriteGoldLight }]}>
-          <Ionicons name="star" size={16} color={colors.favoriteGold} />
-          <Text style={[styles.headerBadgeText, { color: colors.favoriteGold }]}>
+        <View style={styles.headerBadge}>
+          <Ionicons name="star" size={16} color={styles.headerBadgeText.color} />
+          <Text style={styles.headerBadgeText}>
             {favoriteStations.length} favori
           </Text>
         </View>
@@ -93,24 +69,48 @@ export default function FavoritesScreen() {
   );
 }
 
-const styles = StyleSheet.create({
-  container: { flex: 1 },
-  headerBar: { paddingHorizontal: Spacing.lg, paddingVertical: Spacing.sm },
+const styles = StyleSheet.create((theme) => ({
+  container: { flex: 1, backgroundColor: theme.colors.background },
+  headerBar: { paddingHorizontal: theme.spacing.lg, paddingVertical: theme.spacing.sm },
   headerBadge: {
-    flexDirection: 'row', alignItems: 'center', alignSelf: 'flex-start',
-    gap: 6, paddingHorizontal: Spacing.md, paddingVertical: 6,
-    borderRadius: BorderRadius.pill,
+    flexDirection: 'row',
+    alignItems: 'center',
+    alignSelf: 'flex-start',
+    gap: 6,
+    paddingHorizontal: theme.spacing.md,
+    paddingVertical: 6,
+    borderRadius: theme.borderRadius.pill,
+    backgroundColor: theme.colors.favoriteGoldLight,
   },
-  headerBadgeText: { fontSize: 13, fontWeight: '700' },
-  listContent: { paddingBottom: Spacing.xxxl },
+  headerBadgeText: { fontSize: 13, fontWeight: '700', color: theme.colors.favoriteGold },
+  listContent: { paddingBottom: theme.spacing.xxxl },
   emptyContainer: {
-    flex: 1, alignItems: 'center', justifyContent: 'center',
-    paddingHorizontal: Spacing.xxl,
+    flex: 1,
+    alignItems: 'center',
+    justifyContent: 'center',
+    paddingHorizontal: theme.spacing.xxl,
   },
   emptyIconCircle: {
-    width: 100, height: 100, borderRadius: 50,
-    alignItems: 'center', justifyContent: 'center', marginBottom: Spacing.xl,
+    width: 100,
+    height: 100,
+    borderRadius: 50,
+    alignItems: 'center',
+    justifyContent: 'center',
+    marginBottom: theme.spacing.xl,
+    backgroundColor: theme.colors.favoriteGoldLight,
+    ...theme.shadows.card,
   },
-  emptyTitle: { fontSize: 22, fontWeight: '700', marginBottom: Spacing.sm },
-  emptySubtitle: { fontSize: 15, textAlign: 'center', lineHeight: 22 },
-});
+  emptyStarColor: { color: theme.colors.favoriteGold },
+  emptyTitle: {
+    fontSize: 22,
+    fontWeight: '700',
+    marginBottom: theme.spacing.sm,
+    color: theme.colors.text,
+  },
+  emptySubtitle: {
+    fontSize: 15,
+    textAlign: 'center',
+    lineHeight: 22,
+    color: theme.colors.textSecondary,
+  },
+}));

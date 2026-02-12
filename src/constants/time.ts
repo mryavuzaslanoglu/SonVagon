@@ -1,0 +1,2 @@
+export const MIDNIGHT_THRESHOLD_MINUTES = 300;
+export const MINUTES_IN_DAY = 1440;

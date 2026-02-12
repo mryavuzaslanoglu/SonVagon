@@ -1,3 +1,5 @@
+// ─── Station & Schedule ─────────────────────────────────────
+
 export interface StationSchedule {
   firstTrain: string; // "HH:MM" format
   lastTrain: string;
@@ -16,13 +18,17 @@ export interface Station {
   schedule: {
     toHalkali: StationSchedule | null;
     toGebze: StationSchedule | null;
-    shortToHalkali?: StationSchedule | null; // Ataköy-Pendik short line, towards Ataköy
-    shortToGebze?: StationSchedule | null;   // Ataköy-Pendik short line, towards Pendik
+    shortToHalkali?: StationSchedule | null;
+    shortToGebze?: StationSchedule | null;
   };
 }
 
+// ─── Direction & Route ──────────────────────────────────────
+
 export type Direction = 'toHalkali' | 'toGebze';
 export type TrainRouteType = 'full' | 'short';
+
+// ─── Next Train Info ────────────────────────────────────────
 
 export interface NextTrainInfo {
   direction: Direction;
@@ -46,16 +52,37 @@ export interface UpcomingTrain {
   destination: string;
 }
 
-export interface CountdownDisplayProps {
-  minutes: number;
-  seconds: number;
-  isServiceOver: boolean;
-  isBeforeService: boolean;
-  nextTrainTime?: string;
-}
+// ─── Section List ───────────────────────────────────────────
 
 export interface StationSection {
   title: string;
   data: Station[];
   type?: 'favorites' | 'avrupa' | 'asya';
+}
+
+// ─── Live Train Tracking ────────────────────────────────────
+
+export interface TravelOffset {
+  stationId: string;
+  stationName: string;
+  order: number;
+  minutesFromOrigin: number;
+}
+
+export interface ActiveTrain {
+  trainId: string;
+  routeType: TrainRouteType;
+  direction: Direction;
+  departureTime: string;
+  /** Order index of the station the train just passed */
+  currentStationIndex: number;
+  /** Order index of the next station ahead */
+  nextStationIndex: number;
+  /** 0.0–1.0 progress between currentStation and nextStation */
+  progress: number;
+  currentStationId: string;
+  nextStationId: string;
+  /** Interpolated GPS position */
+  latitude: number;
+  longitude: number;
 }
