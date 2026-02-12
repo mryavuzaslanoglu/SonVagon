@@ -227,7 +227,7 @@ function ScheduleInfo({ stationId }: { stationId: string }) {
 export default function StationDetailScreen() {
   const { id } = useLocalSearchParams<{ id: string }>();
   const station = stationMap.get(id ?? "");
-  const isFav = useFavoritesStore((s) => s.isFavorite);
+  const favorite = useFavoritesStore((s) => s.favoriteIds.includes(id ?? ""));
   const toggleFavorite = useFavoritesStore((s) => s.toggleFavorite);
   const [timetableDir, setTimetableDir] = useState<Direction | null>(null);
 
@@ -240,7 +240,6 @@ export default function StationDetailScreen() {
   }
 
   const insets = useSafeAreaInsets();
-  const favorite = isFav(station.id);
   const handleToggleFavorite = useHapticFavorite(station.id, toggleFavorite);
 
   return (

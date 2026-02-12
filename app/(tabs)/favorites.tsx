@@ -32,7 +32,6 @@ export default function FavoritesScreen() {
   const minuteKey = useMinuteKey();
   const favoriteIds = useFavoriteIds();
   const toggleFavorite = useFavoritesStore((s) => s.toggleFavorite);
-  const isFavorite = useFavoritesStore((s) => s.isFavorite);
 
   const favoriteStations = useMemo(() => {
     return stations.filter((s) => favoriteIds.includes(s.id));
@@ -40,7 +39,7 @@ export default function FavoritesScreen() {
 
   const renderItem = useStationCardRenderer({
     navigateToStation,
-    isFavorite,
+    favoriteIds,
     toggleFavorite,
     minuteKey,
   });

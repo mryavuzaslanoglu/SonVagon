@@ -14,8 +14,8 @@ export default function StationsScreen() {
   const { navigateToStation } = useStationNavigation();
   const minuteKey = useMinuteKey();
   const [searchQuery, setSearchQuery] = useState("");
+  const favoriteIds = useFavoritesStore((s) => s.favoriteIds);
   const toggleFavorite = useFavoritesStore((s) => s.toggleFavorite);
-  const isFavorite = useFavoritesStore((s) => s.isFavorite);
 
   const sections = useMemo((): StationSection[] => {
     const filtered = searchQuery
@@ -39,7 +39,7 @@ export default function StationsScreen() {
 
   const renderItem = useStationCardRenderer({
     navigateToStation,
-    isFavorite,
+    favoriteIds,
     toggleFavorite,
     minuteKey,
   });

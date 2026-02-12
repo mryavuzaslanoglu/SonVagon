@@ -6,14 +6,14 @@ import { Station } from '@/types';
 
 interface UseStationCardRendererParams {
   navigateToStation: (id: string) => void;
-  isFavorite: (id: string) => boolean;
+  favoriteIds: string[];
   toggleFavorite: (id: string) => void;
   minuteKey: number;
 }
 
 export function useStationCardRenderer({
   navigateToStation,
-  isFavorite,
+  favoriteIds,
   toggleFavorite,
   minuteKey,
 }: UseStationCardRendererParams) {
@@ -31,14 +31,14 @@ export function useStationCardRenderer({
           upcomingHalkali={upH}
           upcomingGebze={upG}
           onPress={() => navigateToStation(item.id)}
-          isFavorite={isFavorite(item.id)}
+          isFavorite={favoriteIds.includes(item.id)}
           onToggleFavorite={toggleFavorite}
         />
       );
     },
     // minuteKey in deps forces re-render every minute
     // eslint-disable-next-line react-hooks/exhaustive-deps
-    [minuteKey, navigateToStation, isFavorite, toggleFavorite]
+    [minuteKey, navigateToStation, favoriteIds, toggleFavorite]
   );
 
   return renderItem;
