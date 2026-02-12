@@ -1,0 +1,18 @@
+{
+  "permissions": {
+    "allow": [
+      "WebFetch(domain:www.tcddtasimacilik.gov.tr)",
+      "Bash(powershell:*)",
+      "WebSearch",
+      "WebFetch(domain:en.wikipedia.org)",
+      "WebFetch(domain:gidiyorum.com)",
+      "WebFetch(domain:metrodurak.com)",
+      "Bash(dir:*)",
+      "Bash(npm install:*)",
+      "Bash(npx tsc:*)",
+      "Bash(npx expo export:*)",
+      "Bash(npx expo install:*)",
+      "Bash(node -e:*)"
+    ]
+  }
+}

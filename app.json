@@ -1,0 +1,47 @@
+{
+  "expo": {
+    "name": "SonVagon",
+    "slug": "sonvagon",
+    "version": "1.0.0",
+    "orientation": "portrait",
+    "icon": "./assets/icon.png",
+    "scheme": "sonvagon",
+    "userInterfaceStyle": "dark",
+    "newArchEnabled": false,
+    "splash": {
+      "backgroundColor": "#0D1117"
+    },
+    "ios": {
+      "supportsTablet": true,
+      "bundleIdentifier": "com.sonvagon.app",
+      "config": {
+        "googleMapsApiKey": "YOUR_GOOGLE_MAPS_API_KEY"
+      }
+    },
+    "android": {
+      "adaptiveIcon": {
+        "backgroundColor": "#0D1117"
+      },
+      "package": "com.sonvagon.app",
+      "config": {
+        "googleMaps": {
+          "apiKey": "YOUR_GOOGLE_MAPS_API_KEY"
+        }
+      }
+    },
+    "experiments": {
+      "typedRoutes": true
+    },
+    "plugins": [
+      ["expo-router", { "root": "./app" }],
+      [
+        "expo-location",
+        {
+          "locationWhenInUsePermission": "Konumunuz en yakın istasyonu bulmak için kullanılacaktır."
+        }
+      ],
+      "expo-font",
+      "expo-asset"
+    ]
+  }
+}
