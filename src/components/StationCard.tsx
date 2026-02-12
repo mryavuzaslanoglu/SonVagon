@@ -1,9 +1,9 @@
-import React, { memo } from 'react';
-import { View, Text, TouchableOpacity } from 'react-native';
-import { Ionicons } from '@expo/vector-icons';
-import { StyleSheet } from 'react-native-unistyles';
-import { Station, NextTrainInfo, UpcomingTrain } from '../types';
-import { useHapticFavorite } from '@/hooks/useHapticFavorite';
+import React, { memo } from "react";
+import { View, Text, TouchableOpacity } from "react-native";
+import { Ionicons } from "@expo/vector-icons";
+import { StyleSheet } from "react-native-unistyles";
+import { Station, NextTrainInfo, UpcomingTrain } from "../types";
+import { useHapticFavorite } from "@/hooks/useHapticFavorite";
 
 interface Props {
   station: Station;
@@ -23,10 +23,10 @@ function DirectionMiniCard({
 }: {
   info: NextTrainInfo;
   upcoming: UpcomingTrain[];
-  direction: 'toHalkali' | 'toGebze';
+  direction: "toHalkali" | "toGebze";
 }) {
-  const isHalkali = direction === 'toHalkali';
-  const label = isHalkali ? '← Halkalı' : 'Gebze →';
+  const isHalkali = direction === "toHalkali";
+  const label = isHalkali ? "← Halkalı" : "Gebze →";
 
   if (info.isServiceOver && !info.firstTrain) {
     return null; // terminus
@@ -54,14 +54,17 @@ function DirectionMiniCard({
 
       {info.destination ? (
         <View style={styles.dirDestRow}>
-          <View style={styles.dirDestDot(info.routeType === 'full')} />
+          <View style={styles.dirDestDot(info.routeType === "full")} />
           <Text style={styles.dirDestText}>{info.destination}</Text>
         </View>
       ) : null}
 
       {upcoming.length > 1 && (
         <Text style={styles.dirUpcoming} numberOfLines={1}>
-          {upcoming.slice(1, 4).map(t => t.time).join('  ·  ')}
+          {upcoming
+            .slice(1, 4)
+            .map((t) => t.time)
+            .join("  ·  ")}
         </Text>
       )}
     </View>
@@ -78,7 +81,10 @@ export const StationCard = memo(function StationCard({
   isFavorite = false,
   onToggleFavorite,
 }: Props) {
-  const handleToggleFavorite = useHapticFavorite(station.id, onToggleFavorite ?? (() => {}));
+  const handleToggleFavorite = useHapticFavorite(
+    station.id,
+    onToggleFavorite ?? (() => {}),
+  );
 
   return (
     <TouchableOpacity
@@ -97,12 +103,18 @@ export const StationCard = memo(function StationCard({
               hitSlop={{ top: 10, bottom: 10, left: 10, right: 10 }}
               style={styles.starBtn}
               accessibilityRole="button"
-              accessibilityLabel={isFavorite ? 'Favorilerden çıkar' : 'Favorilere ekle'}
+              accessibilityLabel={
+                isFavorite ? "Favorilerden çıkar" : "Favorilere ekle"
+              }
             >
               <Ionicons
-                name={isFavorite ? 'star' : 'star-outline'}
+                name={isFavorite ? "star" : "star-outline"}
                 size={20}
-                color={isFavorite ? styles.starActive.color : styles.starInactive.color}
+                color={
+                  isFavorite
+                    ? styles.starActive.color
+                    : styles.starInactive.color
+                }
               />
             </TouchableOpacity>
           )}
@@ -111,14 +123,22 @@ export const StationCard = memo(function StationCard({
               <Text style={styles.stationName}>{station.name}</Text>
               {station.transfers.length > 0 && (
                 <View style={styles.transferBadge}>
-                  <Ionicons name="git-branch-outline" size={10} color={styles.transferIcon.color} />
+                  <Ionicons
+                    name="git-branch-outline"
+                    size={10}
+                    color={styles.transferIcon.color}
+                  />
                 </View>
               )}
             </View>
             <Text style={styles.district}>{station.district}</Text>
           </View>
         </View>
-        <Ionicons name="chevron-forward" size={20} color={styles.chevron.color} />
+        <Ionicons
+          name="chevron-forward"
+          size={20}
+          color={styles.chevron.color}
+        />
       </View>
 
       {/* Direction cards */}
@@ -153,17 +173,17 @@ const styles = StyleSheet.create((theme) => ({
   },
   cardFavorite: {
     borderWidth: 1.5,
-    borderColor: theme.colors.favoriteGold + '40',
+    borderColor: theme.colors.favoriteGold + "40",
   },
   header: {
-    flexDirection: 'row',
-    alignItems: 'center',
-    justifyContent: 'space-between',
+    flexDirection: "row",
+    alignItems: "center",
+    justifyContent: "space-between",
     marginBottom: theme.spacing.md,
   },
   headerLeft: {
-    flexDirection: 'row',
-    alignItems: 'center',
+    flexDirection: "row",
+    alignItems: "center",
     flex: 1,
   },
   starBtn: {
@@ -176,21 +196,21 @@ const styles = StyleSheet.create((theme) => ({
     color: theme.colors.textMuted,
   },
   nameRow: {
-    flexDirection: 'row',
-    alignItems: 'center',
+    flexDirection: "row",
+    alignItems: "center",
     gap: 6,
   },
   stationName: {
     fontSize: 17,
-    fontWeight: '700',
+    fontWeight: "700",
     color: theme.colors.text,
   },
   transferBadge: {
     width: 18,
     height: 18,
     borderRadius: 9,
-    alignItems: 'center',
-    justifyContent: 'center',
+    alignItems: "center",
+    justifyContent: "center",
     backgroundColor: theme.colors.primaryLight,
   },
   transferIcon: {
@@ -205,60 +225,62 @@ const styles = StyleSheet.create((theme) => ({
     color: theme.colors.textMuted,
   },
   directionsRow: {
-    flexDirection: 'row',
+    flexDirection: "row",
     gap: theme.spacing.sm,
   },
   dirMini: (isHalkali: boolean) => ({
     flex: 1,
     borderRadius: theme.borderRadius.md,
     padding: theme.spacing.md,
-    alignItems: 'center' as const,
+    alignItems: "center" as const,
     gap: 4,
-    backgroundColor: isHalkali ? theme.colors.halkaliBadgeLight : theme.colors.gebzeBadgeLight,
+    backgroundColor: isHalkali
+      ? theme.colors.halkaliBadgeLight
+      : theme.colors.gebzeBadgeLight,
   }),
   dirLabel: (isHalkali: boolean) => ({
     fontSize: 12,
-    fontWeight: '700' as const,
+    fontWeight: "700" as const,
     color: isHalkali ? theme.colors.halkaliBadge : theme.colors.gebzeBadge,
   }),
   dirCountdownRow: {
-    flexDirection: 'row',
-    alignItems: 'baseline',
+    flexDirection: "row",
+    alignItems: "baseline",
     gap: 2,
   },
   dirMinutes: (isHalkali: boolean) => ({
     fontSize: 28,
-    fontWeight: '800' as const,
-    fontVariant: ['tabular-nums'] as const,
+    fontWeight: "800" as const,
+    fontVariant: ["tabular-nums"] as const,
     lineHeight: 34,
     color: isHalkali ? theme.colors.halkaliBadge : theme.colors.gebzeBadge,
   }),
   dirUnit: (isHalkali: boolean) => ({
     fontSize: 14,
-    fontWeight: '600' as const,
+    fontWeight: "600" as const,
     color: isHalkali ? theme.colors.halkaliBadge : theme.colors.gebzeBadge,
   }),
   dirTime: (isHalkali: boolean) => ({
     fontSize: 20,
-    fontWeight: '700' as const,
-    fontVariant: ['tabular-nums'] as const,
+    fontWeight: "700" as const,
+    fontVariant: ["tabular-nums"] as const,
     color: isHalkali ? theme.colors.halkaliBadge : theme.colors.gebzeBadge,
   }),
   dirBeforeText: {
     fontSize: 12,
-    fontWeight: '500',
+    fontWeight: "500",
     marginRight: 4,
     color: theme.colors.textSecondary,
   },
   dirStatusText: {
     fontSize: 13,
-    fontWeight: '600',
+    fontWeight: "600",
     paddingVertical: 4,
     color: theme.colors.textMuted,
   },
   dirDestRow: {
-    flexDirection: 'row',
-    alignItems: 'center',
+    flexDirection: "row",
+    alignItems: "center",
     gap: 3,
   },
   dirDestDot: (isFull: boolean) => ({
@@ -269,12 +291,12 @@ const styles = StyleSheet.create((theme) => ({
   }),
   dirDestText: {
     fontSize: 10,
-    fontWeight: '500',
+    fontWeight: "500",
     color: theme.colors.textSecondary,
   },
   dirUpcoming: {
     fontSize: 11,
-    fontVariant: ['tabular-nums'],
+    fontVariant: ["tabular-nums"],
     marginTop: 2,
     color: theme.colors.textMuted,
   },

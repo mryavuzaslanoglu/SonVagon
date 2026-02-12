@@ -29,30 +29,30 @@ export const FontSize = {
 } as const;
 
 export const FontWeight = {
-  regular: '400',
-  medium: '500',
-  semibold: '600',
-  bold: '700',
-  extrabold: '800',
+  regular: "400",
+  medium: "500",
+  semibold: "600",
+  bold: "700",
+  extrabold: "800",
 } as const;
 
 export const Shadows = {
   sm: {
-    shadowColor: '#000',
+    shadowColor: "#000",
     shadowOffset: { width: 0, height: 1 },
     shadowOpacity: 0.04,
     shadowRadius: 4,
     elevation: 1,
   },
   card: {
-    shadowColor: '#000',
+    shadowColor: "#000",
     shadowOffset: { width: 0, height: 2 },
     shadowOpacity: 0.06,
     shadowRadius: 12,
     elevation: 3,
   },
   elevated: {
-    shadowColor: '#000',
+    shadowColor: "#000",
     shadowOffset: { width: 0, height: 4 },
     shadowOpacity: 0.1,
     shadowRadius: 20,

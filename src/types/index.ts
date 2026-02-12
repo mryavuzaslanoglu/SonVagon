@@ -12,7 +12,7 @@ export interface Station {
   latitude: number;
   longitude: number;
   district: string;
-  side: 'avrupa' | 'asya';
+  side: "avrupa" | "asya";
   order: number;
   transfers: string[];
   schedule: {
@@ -25,8 +25,8 @@ export interface Station {
 
 // ─── Direction & Route ──────────────────────────────────────
 
-export type Direction = 'toHalkali' | 'toGebze';
-export type TrainRouteType = 'full' | 'short';
+export type Direction = "toHalkali" | "toGebze";
+export type TrainRouteType = "full" | "short";
 
 // ─── Next Train Info ────────────────────────────────────────
 
@@ -57,7 +57,7 @@ export interface UpcomingTrain {
 export interface StationSection {
   title: string;
   data: Station[];
-  type?: 'favorites' | 'avrupa' | 'asya';
+  type?: "favorites" | "avrupa" | "asya";
 }
 
 // ─── Live Train Tracking ────────────────────────────────────

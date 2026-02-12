@@ -1,5 +1,5 @@
-import { useCallback } from 'react';
-import { useRouter } from 'expo-router';
+import { useCallback } from "react";
+import { useRouter } from "expo-router";
 
 /**
  * Shared hook for navigating to station detail screen.
@@ -10,7 +10,7 @@ export function useStationNavigation() {
 
   const navigateToStation = useCallback(
     (stationId: string) => {
-      router.push({ pathname: '/station/[id]', params: { id: stationId } });
+      router.push({ pathname: "/station/[id]", params: { id: stationId } });
     },
     [router],
   );

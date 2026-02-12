@@ -1,6 +1,12 @@
-import { StyleSheet } from 'react-native-unistyles';
-import { lightColors, darkColors } from '@/theme/colors';
-import { Spacing, BorderRadius, FontSize, FontWeight, Shadows } from '@/theme/tokens';
+import { StyleSheet } from "react-native-unistyles";
+import { lightColors, darkColors } from "@/theme/colors";
+import {
+  Spacing,
+  BorderRadius,
+  FontSize,
+  FontWeight,
+  Shadows,
+} from "@/theme/tokens";
 
 const sharedTokens = {
   spacing: Spacing,
@@ -25,7 +31,7 @@ type AppThemes = {
   dark: typeof darkTheme;
 };
 
-declare module 'react-native-unistyles' {
+declare module "react-native-unistyles" {
   export interface UnistylesThemes extends AppThemes {}
 }
 

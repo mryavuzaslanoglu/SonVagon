@@ -1,7 +1,7 @@
-import React from 'react';
-import { View, TextInput, TouchableOpacity } from 'react-native';
-import { StyleSheet } from 'react-native-unistyles';
-import { Ionicons } from '@expo/vector-icons';
+import React from "react";
+import { View, TextInput, TouchableOpacity } from "react-native";
+import { StyleSheet } from "react-native-unistyles";
+import { Ionicons } from "@expo/vector-icons";
 
 interface Props {
   value: string;
@@ -9,10 +9,19 @@ interface Props {
   placeholder?: string;
 }
 
-export function SearchBar({ value, onChangeText, placeholder = 'İstasyon ara...' }: Props) {
+export function SearchBar({
+  value,
+  onChangeText,
+  placeholder = "İstasyon ara...",
+}: Props) {
   return (
     <View style={styles.container}>
-      <Ionicons name="search" size={20} color={styles.icon.color} style={styles.icon} />
+      <Ionicons
+        name="search"
+        size={20}
+        color={styles.icon.color}
+        style={styles.icon}
+      />
       <TextInput
         style={styles.input}
         value={value}
@@ -27,7 +36,7 @@ export function SearchBar({ value, onChangeText, placeholder = 'İstasyon ara...
       />
       {value.length > 0 && (
         <TouchableOpacity
-          onPress={() => onChangeText('')}
+          onPress={() => onChangeText("")}
           style={styles.clearBtn}
           accessibilityLabel="Aramayı temizle"
           accessibilityRole="button"
@@ -41,8 +50,8 @@ export function SearchBar({ value, onChangeText, placeholder = 'İstasyon ara...
 
 const styles = StyleSheet.create((theme) => ({
   container: {
-    flexDirection: 'row',
-    alignItems: 'center',
+    flexDirection: "row",
+    alignItems: "center",
     borderRadius: theme.borderRadius.pill,
     paddingHorizontal: theme.spacing.lg,
     marginHorizontal: theme.spacing.lg,
@@ -50,7 +59,7 @@ const styles = StyleSheet.create((theme) => ({
     marginBottom: theme.spacing.md,
     height: 48,
     backgroundColor: theme.colors.surface,
-    shadowColor: '#000',
+    shadowColor: "#000",
     shadowOffset: { width: 0, height: 1 },
     shadowOpacity: 0.04,
     shadowRadius: 4,

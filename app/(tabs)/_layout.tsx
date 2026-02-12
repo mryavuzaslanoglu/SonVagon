@@ -1,8 +1,8 @@
-import { Tabs } from 'expo-router';
-import { TouchableOpacity } from 'react-native';
-import { Ionicons } from '@expo/vector-icons';
-import { StyleSheet } from 'react-native-unistyles';
-import { useIsDark, useToggleTheme } from '@/stores';
+import { Tabs } from "expo-router";
+import { TouchableOpacity } from "react-native";
+import { Ionicons } from "@expo/vector-icons";
+import { StyleSheet } from "react-native-unistyles";
+import { useIsDark, useToggleTheme } from "@/stores";
 
 export default function TabLayout() {
   const isDark = useIsDark();
@@ -20,7 +20,7 @@ export default function TabLayout() {
         },
         tabBarLabelStyle: {
           fontSize: 11,
-          fontWeight: '600',
+          fontWeight: "600",
         },
         headerStyle: {
           backgroundColor: styles.header.backgroundColor,
@@ -28,7 +28,7 @@ export default function TabLayout() {
         headerShadowVisible: false,
         headerTintColor: styles.header.color,
         headerTitleStyle: {
-          fontWeight: '700',
+          fontWeight: "700",
           fontSize: 18,
         },
       }}
@@ -36,10 +36,10 @@ export default function TabLayout() {
       <Tabs.Screen
         name="index"
         options={{
-          title: 'İstasyonlar',
-          headerTitle: 'SonVagon',
+          title: "İstasyonlar",
+          headerTitle: "SonVagon",
           headerTitleStyle: {
-            fontWeight: '800',
+            fontWeight: "800",
             fontSize: 22,
             color: styles.brandTitle.color,
           },
@@ -49,10 +49,12 @@ export default function TabLayout() {
               hitSlop={{ top: 10, bottom: 10, left: 10, right: 10 }}
               style={{ marginRight: 16 }}
               accessibilityRole="button"
-              accessibilityLabel={isDark ? 'Açık temaya geç' : 'Koyu temaya geç'}
+              accessibilityLabel={
+                isDark ? "Açık temaya geç" : "Koyu temaya geç"
+              }
             >
               <Ionicons
-                name={isDark ? 'sunny' : 'moon'}
+                name={isDark ? "sunny" : "moon"}
                 size={22}
                 color={styles.themeIcon.color}
               />
@@ -66,8 +68,8 @@ export default function TabLayout() {
       <Tabs.Screen
         name="favorites"
         options={{
-          title: 'Favoriler',
-          headerTitle: 'Favorilerim',
+          title: "Favoriler",
+          headerTitle: "Favorilerim",
           tabBarIcon: ({ color, size }) => (
             <Ionicons name="star" size={size} color={color} />
           ),
@@ -76,7 +78,7 @@ export default function TabLayout() {
       <Tabs.Screen
         name="map"
         options={{
-          title: 'Harita',
+          title: "Harita",
           tabBarIcon: ({ color, size }) => (
             <Ionicons name="map-outline" size={size} color={color} />
           ),

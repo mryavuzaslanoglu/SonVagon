@@ -1,15 +1,15 @@
-import React, { useCallback, useRef } from 'react';
-import { View } from 'react-native';
-import MapView, { Polyline, PROVIDER_GOOGLE } from 'react-native-maps';
-import { StyleSheet } from 'react-native-unistyles';
-import { useIsDark, useNow } from '@/stores';
-import { useStationNavigation } from '@/features/stations/hooks/useStationNavigation';
-import { useAllActiveTrains, TrainMarker } from '@/features/live-tracking';
-import { stations, marmarayPolyline } from '@/data/stations';
-import { SCHEDULE_CONFIG } from '@/data/scheduleConfig';
-import { MapLightStyle, MapDarkStyle } from '@/theme/mapStyles';
-import { getStationCountdowns } from '@/utils/scheduleCalculator';
-import { StationMarker } from '@/components/StationMarker';
+import React, { useCallback, useRef } from "react";
+import { View } from "react-native";
+import MapView, { Polyline, PROVIDER_GOOGLE } from "react-native-maps";
+import { StyleSheet } from "react-native-unistyles";
+import { useIsDark, useNow } from "@/stores";
+import { useStationNavigation } from "@/features/stations/hooks/useStationNavigation";
+import { useAllActiveTrains, TrainMarker } from "@/features/live-tracking";
+import { stations, marmarayPolyline } from "@/data/stations";
+import { SCHEDULE_CONFIG } from "@/data/scheduleConfig";
+import { MapLightStyle, MapDarkStyle } from "@/theme/mapStyles";
+import { getStationCountdowns } from "@/utils/scheduleCalculator";
+import { StationMarker } from "@/components/StationMarker";
 
 export default function MapScreen() {
   const isDark = useIsDark();
@@ -22,7 +22,7 @@ export default function MapScreen() {
     (stationId: string) => {
       navigateToStation(stationId);
     },
-    [navigateToStation]
+    [navigateToStation],
   );
 
   return (

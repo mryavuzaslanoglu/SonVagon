@@ -1,20 +1,22 @@
-import React from 'react';
-import { View, Text } from 'react-native';
-import { StyleSheet } from 'react-native-unistyles';
-import { NextTrainInfo } from '../types';
+import React from "react";
+import { View, Text } from "react-native";
+import { StyleSheet } from "react-native-unistyles";
+import { NextTrainInfo } from "../types";
 
 interface Props {
   info: NextTrainInfo;
-  size?: 'large' | 'small';
+  size?: "large" | "small";
 }
 
-export function CountdownTimer({ info, size = 'small' }: Props) {
-  const isLarge = size === 'large';
+export function CountdownTimer({ info, size = "small" }: Props) {
+  const isLarge = size === "large";
 
   if (info.isServiceOver && !info.firstTrain) {
     return (
       <View style={styles.container}>
-        <Text style={[styles.statusText, isLarge && styles.statusLarge]}>Son Durak</Text>
+        <Text style={[styles.statusText, isLarge && styles.statusLarge]}>
+          Son Durak
+        </Text>
       </View>
     );
   }
@@ -22,13 +24,13 @@ export function CountdownTimer({ info, size = 'small' }: Props) {
   if (info.isServiceOver) {
     return (
       <View style={styles.container}>
-        <Text style={[styles.serviceOverText, isLarge && styles.serviceOverLarge]}>
+        <Text
+          style={[styles.serviceOverText, isLarge && styles.serviceOverLarge]}
+        >
           Sefer Bitti
         </Text>
         {isLarge && (
-          <Text style={styles.infoSubtext}>
-            İlk sefer: {info.firstTrain}
-          </Text>
+          <Text style={styles.infoSubtext}>İlk sefer: {info.firstTrain}</Text>
         )}
       </View>
     );
@@ -62,20 +64,22 @@ export function CountdownTimer({ info, size = 'small' }: Props) {
         >
           {mins}
         </Text>
-        <Text style={[
-          isLarge ? styles.unitLarge : styles.unitSmall,
-          isUrgent && styles.urgentText,
-        ]}>
+        <Text
+          style={[
+            isLarge ? styles.unitLarge : styles.unitSmall,
+            isUrgent && styles.urgentText,
+          ]}
+        >
           dk
         </Text>
       </View>
       {isLarge && info.destination ? (
         <View style={styles.destBadge}>
-          <View style={styles.destDot(info.routeType === 'full')} />
+          <View style={styles.destDot(info.routeType === "full")} />
           <Text style={styles.destLabel}>{info.destination}</Text>
-          <View style={styles.routeChip(info.routeType === 'full')}>
-            <Text style={styles.routeChipText(info.routeType === 'full')}>
-              {info.routeType === 'full' ? 'Tam Hat' : 'Kısa Hat'}
+          <View style={styles.routeChip(info.routeType === "full")}>
+            <Text style={styles.routeChipText(info.routeType === "full")}>
+              {info.routeType === "full" ? "Tam Hat" : "Kısa Hat"}
             </Text>
           </View>
         </View>
@@ -86,24 +90,24 @@ export function CountdownTimer({ info, size = 'small' }: Props) {
 
 const styles = StyleSheet.create((theme) => ({
   container: {
-    alignItems: 'center',
+    alignItems: "center",
   },
   minuteRow: {
-    flexDirection: 'row',
-    alignItems: 'baseline',
+    flexDirection: "row",
+    alignItems: "baseline",
     gap: 2,
   },
   minutesLarge: {
     fontSize: 56,
-    fontWeight: '800',
-    fontVariant: ['tabular-nums'],
+    fontWeight: "800",
+    fontVariant: ["tabular-nums"],
     lineHeight: 64,
     color: theme.colors.text,
   },
   minutesSmall: {
     fontSize: 22,
-    fontWeight: '700',
-    fontVariant: ['tabular-nums'],
+    fontWeight: "700",
+    fontVariant: ["tabular-nums"],
     color: theme.colors.text,
   },
   urgentText: {
@@ -111,18 +115,18 @@ const styles = StyleSheet.create((theme) => ({
   },
   unitLarge: {
     fontSize: 22,
-    fontWeight: '600',
+    fontWeight: "600",
     marginBottom: 6,
     color: theme.colors.textSecondary,
   },
   unitSmall: {
     fontSize: 12,
-    fontWeight: '600',
+    fontWeight: "600",
     color: theme.colors.textSecondary,
   },
   serviceOverText: {
     fontSize: 13,
-    fontWeight: '600',
+    fontWeight: "600",
     color: theme.colors.textMuted,
   },
   serviceOverLarge: {
@@ -130,7 +134,7 @@ const styles = StyleSheet.create((theme) => ({
   },
   beforeText: {
     fontSize: 11,
-    fontWeight: '500',
+    fontWeight: "500",
     color: theme.colors.warning,
   },
   beforeTextLarge: {
@@ -138,19 +142,19 @@ const styles = StyleSheet.create((theme) => ({
   },
   timeSmall: {
     fontSize: 16,
-    fontWeight: '700',
-    fontVariant: ['tabular-nums'],
+    fontWeight: "700",
+    fontVariant: ["tabular-nums"],
     color: theme.colors.text,
   },
   timeLarge: {
     fontSize: 40,
-    fontWeight: '700',
-    fontVariant: ['tabular-nums'],
+    fontWeight: "700",
+    fontVariant: ["tabular-nums"],
     color: theme.colors.text,
   },
   statusText: {
     fontSize: 13,
-    fontWeight: '500',
+    fontWeight: "500",
     color: theme.colors.textMuted,
   },
   statusLarge: {
@@ -162,8 +166,8 @@ const styles = StyleSheet.create((theme) => ({
     color: theme.colors.textSecondary,
   },
   destBadge: {
-    flexDirection: 'row',
-    alignItems: 'center',
+    flexDirection: "row",
+    alignItems: "center",
     gap: 6,
     marginTop: theme.spacing.md,
   },
@@ -175,18 +179,20 @@ const styles = StyleSheet.create((theme) => ({
   }),
   destLabel: {
     fontSize: 14,
-    fontWeight: '500',
+    fontWeight: "500",
     color: theme.colors.textSecondary,
   },
   routeChip: (isFull: boolean) => ({
     paddingHorizontal: 8,
     paddingVertical: 3,
     borderRadius: 6,
-    backgroundColor: isFull ? theme.colors.fullRouteLight : theme.colors.shortRouteLight,
+    backgroundColor: isFull
+      ? theme.colors.fullRouteLight
+      : theme.colors.shortRouteLight,
   }),
   routeChipText: (isFull: boolean) => ({
     fontSize: 11,
-    fontWeight: '700' as const,
+    fontWeight: "700" as const,
     color: isFull ? theme.colors.fullRoute : theme.colors.shortRoute,
   }),
 }));

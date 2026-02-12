@@ -1,6 +1,6 @@
-import React from 'react';
-import { View } from 'react-native';
-import { StyleSheet } from 'react-native-unistyles';
+import React from "react";
+import { View } from "react-native";
+import { StyleSheet } from "react-native-unistyles";
 
 interface Props {
   remainingMs: number;
@@ -8,7 +8,11 @@ interface Props {
   color?: string;
 }
 
-export function TrainProgressBar({ remainingMs, intervalMinutes, color }: Props) {
+export function TrainProgressBar({
+  remainingMs,
+  intervalMinutes,
+  color,
+}: Props) {
   const barColor = color ?? styles.defaultColor.color;
   const totalMs = intervalMinutes * 60 * 1000;
   const elapsed = totalMs - remainingMs;
@@ -16,15 +20,22 @@ export function TrainProgressBar({ remainingMs, intervalMinutes, color }: Props)
 
   return (
     <View style={styles.track}>
-      <View style={[styles.fill, { width: `${progress * 100}%`, backgroundColor: barColor }]} />
-      <View style={[
-        styles.trainDot,
-        {
-          left: `${progress * 100}%`,
-          backgroundColor: barColor,
-          shadowColor: barColor,
-        },
-      ]} />
+      <View
+        style={[
+          styles.fill,
+          { width: `${progress * 100}%`, backgroundColor: barColor },
+        ]}
+      />
+      <View
+        style={[
+          styles.trainDot,
+          {
+            left: `${progress * 100}%`,
+            backgroundColor: barColor,
+            shadowColor: barColor,
+          },
+        ]}
+      />
     </View>
   );
 }
@@ -33,16 +44,16 @@ const styles = StyleSheet.create((theme) => ({
   track: {
     height: 6,
     borderRadius: theme.borderRadius.pill,
-    overflow: 'visible',
-    position: 'relative',
+    overflow: "visible",
+    position: "relative",
     backgroundColor: theme.colors.borderLight,
   },
   fill: {
-    height: '100%',
+    height: "100%",
     borderRadius: theme.borderRadius.pill,
   },
   trainDot: {
-    position: 'absolute',
+    position: "absolute",
     top: -5,
     width: 16,
     height: 16,

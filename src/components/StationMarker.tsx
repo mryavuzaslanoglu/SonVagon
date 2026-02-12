@@ -1,8 +1,8 @@
-import React, { memo } from 'react';
-import { View, Text } from 'react-native';
-import { Marker, Callout } from 'react-native-maps';
-import { StyleSheet } from 'react-native-unistyles';
-import { Station, NextTrainInfo } from '../types';
+import React, { memo } from "react";
+import { View, Text } from "react-native";
+import { Marker, Callout } from "react-native-maps";
+import { StyleSheet } from "react-native-unistyles";
+import { Station, NextTrainInfo } from "../types";
 
 interface Props {
   station: Station;
@@ -55,8 +55,8 @@ export const StationMarker = memo(function StationMarker({
 });
 
 function formatCalloutTime(info: NextTrainInfo): string {
-  if (info.isServiceOver && !info.firstTrain) return 'Son Durak';
-  if (info.isServiceOver) return 'Bitti';
+  if (info.isServiceOver && !info.firstTrain) return "Son Durak";
+  if (info.isServiceOver) return "Bitti";
   if (info.isBeforeService) return info.nextTrainTime;
   return `${info.remainingMinutes} dk`;
 }
@@ -66,8 +66,8 @@ const styles = StyleSheet.create((theme) => ({
     width: 20,
     height: 20,
     borderRadius: 10,
-    alignItems: 'center',
-    justifyContent: 'center',
+    alignItems: "center",
+    justifyContent: "center",
     backgroundColor: theme.colors.white,
     ...theme.shadows.card,
   },
@@ -86,40 +86,40 @@ const styles = StyleSheet.create((theme) => ({
   },
   calloutTitle: {
     fontSize: 15,
-    fontWeight: '700',
+    fontWeight: "700",
     marginBottom: theme.spacing.sm,
-    textAlign: 'center',
+    textAlign: "center",
     color: theme.colors.text,
   },
   calloutRow: {
-    flexDirection: 'row',
-    justifyContent: 'space-around',
+    flexDirection: "row",
+    justifyContent: "space-around",
     gap: theme.spacing.md,
   },
   calloutDir: {
-    alignItems: 'center',
+    alignItems: "center",
   },
   calloutLabelHalkali: {
     fontSize: 11,
-    fontWeight: '600',
+    fontWeight: "600",
     marginBottom: 2,
     color: theme.colors.halkaliBadge,
   },
   calloutLabelGebze: {
     fontSize: 11,
-    fontWeight: '600',
+    fontWeight: "600",
     marginBottom: 2,
     color: theme.colors.gebzeBadge,
   },
   calloutTime: {
     fontSize: 18,
-    fontWeight: '700',
-    fontVariant: ['tabular-nums'],
+    fontWeight: "700",
+    fontVariant: ["tabular-nums"],
     color: theme.colors.text,
   },
   calloutHint: {
     fontSize: 10,
-    textAlign: 'center',
+    textAlign: "center",
     marginTop: theme.spacing.sm,
     color: theme.colors.textMuted,
   },

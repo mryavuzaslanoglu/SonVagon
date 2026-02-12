@@ -1,23 +1,22 @@
-import React from 'react';
-import { View, Text, ScrollView, TouchableOpacity } from 'react-native';
-import { useLocalSearchParams, Stack } from 'expo-router';
-import { Ionicons } from '@expo/vector-icons';
-import { useSafeAreaInsets } from 'react-native-safe-area-context';
-import { StyleSheet } from 'react-native-unistyles';
-import { stationMap } from '@/data/stations';
-import { useNow } from '@/stores';
-import { useFavoritesStore } from '@/stores/useFavoritesStore';
-import { getStationCountdowns, getUpcomingTrains } from '@/utils/scheduleCalculator';
-import { TrainProgressBar } from '@/components/TrainProgressBar';
-import { LiveRouteView } from '@/features/live-tracking';
-import { useHapticFavorite } from '@/hooks/useHapticFavorite';
-import { UpcomingTrain, NextTrainInfo, Direction } from '@/types';
+import React from "react";
+import { View, Text, ScrollView, TouchableOpacity } from "react-native";
+import { useLocalSearchParams, Stack } from "expo-router";
+import { Ionicons } from "@expo/vector-icons";
+import { useSafeAreaInsets } from "react-native-safe-area-context";
+import { StyleSheet } from "react-native-unistyles";
+import { stationMap } from "@/data/stations";
+import { useNow } from "@/stores";
+import { useFavoritesStore } from "@/stores/useFavoritesStore";
+import {
+  getStationCountdowns,
+  getUpcomingTrains,
+} from "@/utils/scheduleCalculator";
+import { TrainProgressBar } from "@/components/TrainProgressBar";
+import { LiveRouteView } from "@/features/live-tracking";
+import { useHapticFavorite } from "@/hooks/useHapticFavorite";
+import { UpcomingTrain, NextTrainInfo, Direction } from "@/types";
 
-function CompactCountdownStrip({
-  stationId,
-}: {
-  stationId: string;
-}) {
+function CompactCountdownStrip({ stationId }: { stationId: string }) {
   const now = useNow();
   const station = stationMap.get(stationId)!;
   const countdowns = getStationCountdowns(station, now);
@@ -54,8 +53,8 @@ function CompactDirectionCard({
   direction: Direction;
   schedule: { intervalMinutes: number };
 }) {
-  const isHalkali = direction === 'toHalkali';
-  const label = isHalkali ? '← Halkalı' : 'Gebze →';
+  const isHalkali = direction === "toHalkali";
+  const label = isHalkali ? "← Halkalı" : "Gebze →";
 
   return (
     <View style={styles.compactCard(isHalkali)}>
@@ -63,7 +62,7 @@ function CompactDirectionCard({
         <Text style={styles.compactLabel(isHalkali)}>{label}</Text>
         {info.destination ? (
           <View style={styles.compactDestRow}>
-            <View style={styles.compactDestDot(info.routeType === 'full')} />
+            <View style={styles.compactDestDot(info.routeType === "full")} />
             <Text style={styles.compactDestText}>{info.destination}</Text>
           </View>
         ) : null}
@@ -75,7 +74,9 @@ function CompactDirectionCard({
         ) : info.isBeforeService ? (
           <View style={styles.compactTimeRow}>
             <Text style={styles.compactBeforeLabel}>İlk</Text>
-            <Text style={styles.compactTimeValue(isHalkali)}>{info.nextTrainTime}</Text>
+            <Text style={styles.compactTimeValue(isHalkali)}>
+              {info.nextTrainTime}
+            </Text>
           </View>
         ) : (
           <View style={styles.compactTimeRow}>
@@ -103,7 +104,9 @@ function CompactDirectionCard({
         <TrainProgressBar
           remainingMs={info.remainingMs}
           intervalMinutes={schedule.intervalMinutes}
-          color={isHalkali ? styles.halkaliColor.color : styles.gebzeColor.color}
+          color={
+            isHalkali ? styles.halkaliColor.color : styles.gebzeColor.color
+          }
         />
       )}
     </View>
@@ -123,19 +126,19 @@ function UpcomingSection({
 
   if (upcoming.length <= 1) return null;
   const rest = upcoming.slice(1);
-  const isHalkali = direction === 'toHalkali';
+  const isHalkali = direction === "toHalkali";
 
   return (
     <View style={styles.upcomingContainer}>
       <Text style={styles.upcomingTitle}>
-        Sonraki ({isHalkali ? 'Halkalı' : 'Gebze'})
+        Sonraki ({isHalkali ? "Halkalı" : "Gebze"})
       </Text>
       <View style={styles.upcomingRow}>
         {rest.map((t, i) => (
           <View key={i} style={styles.upcomingChip}>
             <Text style={styles.upcomingTime}>{t.time}</Text>
             <View style={styles.upcomingMeta}>
-              <View style={styles.upcomingDot(t.routeType === 'full')} />
+              <View style={styles.upcomingDot(t.routeType === "full")} />
               <Text style={styles.upcomingDest}>{t.destination}</Text>
             </View>
           </View>
@@ -148,8 +151,8 @@ function UpcomingSection({
 function ScheduleInfo({ stationId }: { stationId: string }) {
   const station = stationMap.get(stationId)!;
   const schedules = [
-    { key: 'toHalkali' as const, label: '← Halkalı' },
-    { key: 'toGebze' as const, label: 'Gebze →' },
+    { key: "toHalkali" as const, label: "← Halkalı" },
+    { key: "toGebze" as const, label: "Gebze →" },
   ].filter((s) => station.schedule[s.key]);
 
   return (
@@ -161,18 +164,32 @@ function ScheduleInfo({ stationId }: { stationId: string }) {
             <Text style={styles.scheduleDirLabel}>{label}</Text>
             <View style={styles.scheduleRow}>
               <View style={styles.scheduleItem}>
-                <Ionicons name="sunny-outline" size={14} color={styles.mutedIcon.color} />
+                <Ionicons
+                  name="sunny-outline"
+                  size={14}
+                  color={styles.mutedIcon.color}
+                />
                 <Text style={styles.scheduleTime}>{sched.firstTrain}</Text>
               </View>
               <View style={styles.scheduleDivider} />
               <View style={styles.scheduleItem}>
-                <Ionicons name="moon-outline" size={14} color={styles.mutedIcon.color} />
+                <Ionicons
+                  name="moon-outline"
+                  size={14}
+                  color={styles.mutedIcon.color}
+                />
                 <Text style={styles.scheduleTime}>{sched.lastTrain}</Text>
               </View>
               <View style={styles.scheduleDivider} />
               <View style={styles.scheduleItem}>
-                <Ionicons name="time-outline" size={14} color={styles.mutedIcon.color} />
-                <Text style={styles.scheduleTime}>{sched.intervalMinutes} dk</Text>
+                <Ionicons
+                  name="time-outline"
+                  size={14}
+                  color={styles.mutedIcon.color}
+                />
+                <Text style={styles.scheduleTime}>
+                  {sched.intervalMinutes} dk
+                </Text>
               </View>
             </View>
           </View>
@@ -184,7 +201,7 @@ function ScheduleInfo({ stationId }: { stationId: string }) {
 
 export default function StationDetailScreen() {
   const { id } = useLocalSearchParams<{ id: string }>();
-  const station = stationMap.get(id ?? '');
+  const station = stationMap.get(id ?? "");
   const isFav = useFavoritesStore((s) => s.isFavorite);
   const toggleFavorite = useFavoritesStore((s) => s.toggleFavorite);
 
@@ -203,7 +220,10 @@ export default function StationDetailScreen() {
   return (
     <ScrollView
       style={styles.container}
-      contentContainerStyle={[styles.content, { paddingBottom: insets.bottom + 32 }]}
+      contentContainerStyle={[
+        styles.content,
+        { paddingBottom: insets.bottom + 32 },
+      ]}
     >
       <Stack.Screen
         options={{
@@ -216,12 +236,16 @@ export default function StationDetailScreen() {
               hitSlop={{ top: 8, bottom: 8, left: 8, right: 8 }}
               style={{ marginRight: 8 }}
               accessibilityRole="button"
-              accessibilityLabel={favorite ? 'Favorilerden çıkar' : 'Favorilere ekle'}
+              accessibilityLabel={
+                favorite ? "Favorilerden çıkar" : "Favorilere ekle"
+              }
             >
               <Ionicons
-                name={favorite ? 'star' : 'star-outline'}
+                name={favorite ? "star" : "star-outline"}
                 size={24}
-                color={favorite ? styles.favActive.color : styles.favInactive.color}
+                color={
+                  favorite ? styles.favActive.color : styles.favInactive.color
+                }
               />
             </TouchableOpacity>
           ),
@@ -231,9 +255,9 @@ export default function StationDetailScreen() {
       {/* Station Info — name is already in the navigation header */}
       <View style={styles.stationHeader}>
         <View style={styles.infoRow}>
-          <View style={styles.sideBadge(station.side === 'avrupa')}>
-            <Text style={styles.sideBadgeText(station.side === 'avrupa')}>
-              {station.side === 'avrupa' ? 'Avrupa' : 'Anadolu'}
+          <View style={styles.sideBadge(station.side === "avrupa")}>
+            <Text style={styles.sideBadgeText(station.side === "avrupa")}>
+              {station.side === "avrupa" ? "Avrupa" : "Anadolu"}
             </Text>
           </View>
           <Text style={styles.districtText}>{station.district}</Text>
@@ -243,9 +267,15 @@ export default function StationDetailScreen() {
       {/* Transfers */}
       {station.transfers.length > 0 && (
         <View style={styles.transfersRow}>
-          <Ionicons name="git-branch-outline" size={14} color={styles.transferIcon.color} />
+          <Ionicons
+            name="git-branch-outline"
+            size={14}
+            color={styles.transferIcon.color}
+          />
           {station.transfers.map((t, i) => (
-            <Text key={i} style={styles.transferText}>{t}</Text>
+            <Text key={i} style={styles.transferText}>
+              {t}
+            </Text>
           ))}
         </View>
       )}
@@ -285,7 +315,7 @@ const styles = StyleSheet.create((theme) => ({
   },
   errorText: {
     fontSize: 16,
-    textAlign: 'center',
+    textAlign: "center",
     marginTop: theme.spacing.xxl,
     color: theme.colors.danger,
   },
@@ -298,19 +328,21 @@ const styles = StyleSheet.create((theme) => ({
     marginBottom: theme.spacing.md,
   },
   infoRow: {
-    flexDirection: 'row',
-    alignItems: 'center',
+    flexDirection: "row",
+    alignItems: "center",
     gap: theme.spacing.sm,
   },
   sideBadge: (isAvrupa: boolean) => ({
     paddingHorizontal: theme.spacing.sm,
     paddingVertical: 2,
     borderRadius: theme.borderRadius.pill,
-    backgroundColor: isAvrupa ? theme.colors.avrupaBadgeLight : theme.colors.asyaBadgeLight,
+    backgroundColor: isAvrupa
+      ? theme.colors.avrupaBadgeLight
+      : theme.colors.asyaBadgeLight,
   }),
   sideBadgeText: (isAvrupa: boolean) => ({
     fontSize: 11,
-    fontWeight: '600' as const,
+    fontWeight: "600" as const,
     color: isAvrupa ? theme.colors.avrupaBadge : theme.colors.asyaBadge,
   }),
   districtText: {
@@ -320,11 +352,11 @@ const styles = StyleSheet.create((theme) => ({
 
   // ─── Transfers ─────────────────────────────────────────────
   transfersRow: {
-    flexDirection: 'row',
-    alignItems: 'center',
+    flexDirection: "row",
+    alignItems: "center",
     gap: theme.spacing.sm,
     marginBottom: theme.spacing.md,
-    flexWrap: 'wrap',
+    flexWrap: "wrap",
   },
   transferIcon: {
     color: theme.colors.primary,
@@ -336,12 +368,12 @@ const styles = StyleSheet.create((theme) => ({
     paddingHorizontal: theme.spacing.sm,
     paddingVertical: 2,
     borderRadius: theme.borderRadius.sm,
-    overflow: 'hidden',
+    overflow: "hidden",
   },
 
   // ─── Compact Countdown Strip ───────────────────────────────
   stripContainer: {
-    flexDirection: 'row',
+    flexDirection: "row",
     gap: theme.spacing.sm,
     marginBottom: theme.spacing.md,
   },
@@ -354,19 +386,19 @@ const styles = StyleSheet.create((theme) => ({
       : theme.colors.gebzeBadgeLight,
   }),
   compactHeader: {
-    flexDirection: 'row',
-    alignItems: 'center',
-    justifyContent: 'space-between',
+    flexDirection: "row",
+    alignItems: "center",
+    justifyContent: "space-between",
     marginBottom: theme.spacing.xs,
   },
   compactLabel: (isHalkali: boolean) => ({
     fontSize: 12,
-    fontWeight: '700' as const,
+    fontWeight: "700" as const,
     color: isHalkali ? theme.colors.halkaliBadge : theme.colors.gebzeBadge,
   }),
   compactDestRow: {
-    flexDirection: 'row',
-    alignItems: 'center',
+    flexDirection: "row",
+    alignItems: "center",
     gap: 3,
   },
   compactDestDot: (isFull: boolean) => ({
@@ -377,44 +409,44 @@ const styles = StyleSheet.create((theme) => ({
   }),
   compactDestText: {
     fontSize: 10,
-    fontWeight: '500',
+    fontWeight: "500",
     color: theme.colors.textSecondary,
   },
   compactCountdown: {
     marginBottom: theme.spacing.xs,
   },
   compactTimeRow: {
-    flexDirection: 'row',
-    alignItems: 'baseline',
+    flexDirection: "row",
+    alignItems: "baseline",
     gap: 2,
   },
   compactMinutes: (isHalkali: boolean) => ({
     fontSize: 28,
-    fontWeight: '800' as const,
-    fontVariant: ['tabular-nums'] as const,
+    fontWeight: "800" as const,
+    fontVariant: ["tabular-nums"] as const,
     lineHeight: 34,
     color: isHalkali ? theme.colors.halkaliBadge : theme.colors.gebzeBadge,
   }),
   compactUnit: (isHalkali: boolean) => ({
     fontSize: 14,
-    fontWeight: '600' as const,
+    fontWeight: "600" as const,
     color: isHalkali ? theme.colors.halkaliBadge : theme.colors.gebzeBadge,
   }),
   compactTimeValue: (isHalkali: boolean) => ({
     fontSize: 20,
-    fontWeight: '700' as const,
-    fontVariant: ['tabular-nums'] as const,
+    fontWeight: "700" as const,
+    fontVariant: ["tabular-nums"] as const,
     color: isHalkali ? theme.colors.halkaliBadge : theme.colors.gebzeBadge,
   }),
   compactBeforeLabel: {
     fontSize: 11,
-    fontWeight: '500',
+    fontWeight: "500",
     marginRight: 4,
     color: theme.colors.textSecondary,
   },
   compactStatusText: {
     fontSize: 13,
-    fontWeight: '600',
+    fontWeight: "600",
     color: theme.colors.textMuted,
   },
   urgentText: {
@@ -429,33 +461,33 @@ const styles = StyleSheet.create((theme) => ({
   },
   upcomingTitle: {
     fontSize: 12,
-    fontWeight: '600',
-    textTransform: 'uppercase',
+    fontWeight: "600",
+    textTransform: "uppercase",
     letterSpacing: 0.5,
     marginBottom: theme.spacing.xs,
     color: theme.colors.textMuted,
   },
   upcomingRow: {
-    flexDirection: 'row',
+    flexDirection: "row",
     gap: theme.spacing.sm,
   },
   upcomingChip: {
     flex: 1,
     borderRadius: theme.borderRadius.md,
     padding: theme.spacing.sm,
-    alignItems: 'center',
+    alignItems: "center",
     gap: 3,
     backgroundColor: theme.colors.surface,
   },
   upcomingTime: {
     fontSize: 14,
-    fontWeight: '700',
-    fontVariant: ['tabular-nums'],
+    fontWeight: "700",
+    fontVariant: ["tabular-nums"],
     color: theme.colors.text,
   },
   upcomingMeta: {
-    flexDirection: 'row',
-    alignItems: 'center',
+    flexDirection: "row",
+    alignItems: "center",
     gap: 3,
   },
   upcomingDot: (isFull: boolean) => ({
@@ -466,7 +498,7 @@ const styles = StyleSheet.create((theme) => ({
   }),
   upcomingDest: {
     fontSize: 10,
-    fontWeight: '500',
+    fontWeight: "500",
     color: theme.colors.textSecondary,
   },
 
@@ -482,16 +514,16 @@ const styles = StyleSheet.create((theme) => ({
   },
   scheduleDirLabel: {
     fontSize: 12,
-    fontWeight: '600',
+    fontWeight: "600",
     color: theme.colors.textMuted,
   },
   scheduleRow: {
-    flexDirection: 'row',
-    alignItems: 'center',
-    justifyContent: 'space-around',
+    flexDirection: "row",
+    alignItems: "center",
+    justifyContent: "space-around",
   },
   scheduleItem: {
-    alignItems: 'center',
+    alignItems: "center",
     gap: 2,
     flex: 1,
   },
@@ -502,8 +534,8 @@ const styles = StyleSheet.create((theme) => ({
   },
   scheduleTime: {
     fontSize: 14,
-    fontWeight: '700',
-    fontVariant: ['tabular-nums'],
+    fontWeight: "700",
+    fontVariant: ["tabular-nums"],
     color: theme.colors.text,
   },
   mutedIcon: { color: theme.colors.textMuted },

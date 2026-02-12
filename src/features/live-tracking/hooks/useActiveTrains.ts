@@ -1,16 +1,18 @@
-import { useMemo } from 'react';
-import { Direction, ActiveTrain } from '@/types';
-import { useNow } from '@/stores';
+import { useMemo } from "react";
+import { Direction, ActiveTrain } from "@/types";
+import { useNow } from "@/stores";
 import {
   getActiveTrainsByDirection,
   getAllActiveTrains,
-} from '../utils/trainPositionCalculator';
+} from "../utils/trainPositionCalculator";
 
 /**
  * Hook that returns all active trains for a specific direction.
  * Updates every second via useNow selector.
  */
-export function useActiveTrainsByDirection(direction: Direction): ActiveTrain[] {
+export function useActiveTrainsByDirection(
+  direction: Direction,
+): ActiveTrain[] {
   const now = useNow();
   return useMemo(
     () => getActiveTrainsByDirection(direction, now),

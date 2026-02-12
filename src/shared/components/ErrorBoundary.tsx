@@ -1,6 +1,6 @@
-import React, { Component, ErrorInfo, ReactNode } from 'react';
-import { View, Text, TouchableOpacity } from 'react-native';
-import { StyleSheet } from 'react-native-unistyles';
+import React, { Component, ErrorInfo, ReactNode } from "react";
+import { View, Text, TouchableOpacity } from "react-native";
+import { StyleSheet } from "react-native-unistyles";
 
 interface Props {
   children: ReactNode;
@@ -23,7 +23,7 @@ export class ErrorBoundary extends Component<Props, State> {
   }
 
   componentDidCatch(error: Error, errorInfo: ErrorInfo): void {
-    console.error('[ErrorBoundary]', error, errorInfo);
+    console.error("[ErrorBoundary]", error, errorInfo);
   }
 
   handleReset = () => {
@@ -41,7 +41,7 @@ export class ErrorBoundary extends Component<Props, State> {
           <Text style={styles.emoji}>🚂</Text>
           <Text style={styles.title}>Bir şeyler ters gitti</Text>
           <Text style={styles.message}>
-            {this.state.error?.message || 'Beklenmeyen bir hata oluştu'}
+            {this.state.error?.message || "Beklenmeyen bir hata oluştu"}
           </Text>
           <TouchableOpacity style={styles.button} onPress={this.handleReset}>
             <Text style={styles.buttonText}>Tekrar Dene</Text>
@@ -57,8 +57,8 @@ export class ErrorBoundary extends Component<Props, State> {
 const styles = StyleSheet.create((theme) => ({
   container: {
     flex: 1,
-    alignItems: 'center',
-    justifyContent: 'center',
+    alignItems: "center",
+    justifyContent: "center",
     backgroundColor: theme.colors.background,
     padding: theme.spacing.xxl,
   },
@@ -68,14 +68,14 @@ const styles = StyleSheet.create((theme) => ({
   },
   title: {
     fontSize: theme.fontSize.xxl,
-    fontWeight: '700',
+    fontWeight: "700",
     color: theme.colors.text,
     marginBottom: theme.spacing.sm,
   },
   message: {
     fontSize: theme.fontSize.md,
     color: theme.colors.textSecondary,
-    textAlign: 'center',
+    textAlign: "center",
     marginBottom: theme.spacing.xl,
     lineHeight: 22,
   },
@@ -88,6 +88,6 @@ const styles = StyleSheet.create((theme) => ({
   buttonText: {
     color: theme.colors.white,
     fontSize: theme.fontSize.lg,
-    fontWeight: '600',
+    fontWeight: "600",
   },
 }));

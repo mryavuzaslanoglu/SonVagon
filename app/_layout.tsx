@@ -1,23 +1,23 @@
-import { Stack } from 'expo-router';
-import { StatusBar } from 'expo-status-bar';
-import { SafeAreaProvider } from 'react-native-safe-area-context';
-import { useTimeTick, useIsDark } from '@/stores';
-import { ErrorBoundary } from '@/shared/components/ErrorBoundary';
-import { StyleSheet } from 'react-native-unistyles';
+import { Stack } from "expo-router";
+import { StatusBar } from "expo-status-bar";
+import { SafeAreaProvider } from "react-native-safe-area-context";
+import { useTimeTick, useIsDark } from "@/stores";
+import { ErrorBoundary } from "@/shared/components/ErrorBoundary";
+import { StyleSheet } from "react-native-unistyles";
 
 function RootStack() {
   const isDark = useIsDark();
 
   return (
     <>
-      <StatusBar style={isDark ? 'light' : 'dark'} />
+      <StatusBar style={isDark ? "light" : "dark"} />
       <Stack
         screenOptions={{
           headerStyle: { backgroundColor: styles.header.backgroundColor },
           headerTintColor: styles.header.color,
-          headerTitleStyle: { fontWeight: '600' },
+          headerTitleStyle: { fontWeight: "600" },
           contentStyle: { backgroundColor: styles.header.backgroundColor },
-          animation: 'slide_from_right',
+          animation: "slide_from_right",
           headerShadowVisible: false,
         }}
       >
@@ -25,8 +25,8 @@ function RootStack() {
         <Stack.Screen
           name="station/[id]"
           options={{
-            headerTitle: 'İstasyon Detay',
-            headerBackTitle: 'Geri',
+            headerTitle: "İstasyon Detay",
+            headerBackTitle: "Geri",
           }}
         />
       </Stack>
