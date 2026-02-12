@@ -20,7 +20,8 @@
       "Bash(adb shell pidof:*)",
       "Bash(adb install:*)",
       "Bash(adb shell am force-stop:*)",
-      "WebFetch(domain:coffey.codes)"
+      "WebFetch(domain:coffey.codes)",
+      "WebFetch(domain:marmaray.istanbul)"
     ]
   }
 }

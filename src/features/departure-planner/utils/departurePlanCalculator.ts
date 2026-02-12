@@ -8,8 +8,8 @@ import {
 import { getUpcomingTrains } from '@/utils/scheduleCalculator';
 import { minutesToTimeString, parseTimeToMinutes } from '@/utils/timeUtils';
 
-const MAX_TRAINS_PER_STATION = 3;
-const UPCOMING_FETCH_COUNT = 6;
+const MAX_TRAINS_PER_DESTINATION = 2;
+const UPCOMING_FETCH_COUNT = 8;
 
 /**
  * Compute departure plans for nearby stations.
@@ -35,8 +35,14 @@ export function computeDeparturePlans(
     );
 
     const catchableTrains: CatchableTrain[] = [];
+    // Track count per destination (e.g., "Gebze": 2, "Pendik": 2)
+    const countByDestination = new Map<string, number>();
 
     for (const train of upcomingTrains) {
+      const dest = train.destination;
+      const destCount = countByDestination.get(dest) ?? 0;
+      if (destCount >= MAX_TRAINS_PER_DESTINATION) continue;
+
       const trainMinutes = parseTimeToMinutes(train.time);
       const leaveByMinutes = trainMinutes - walkingMinutes - bufferMinutes;
       const leaveByMinutesFromNow = leaveByMinutes - nowMinutes;
@@ -56,7 +62,7 @@ export function computeDeparturePlans(
         isRecommended: false,
       });
 
-      if (catchableTrains.length >= MAX_TRAINS_PER_STATION) break;
+      countByDestination.set(dest, destCount + 1);
     }
 
     return {

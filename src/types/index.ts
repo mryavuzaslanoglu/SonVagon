@@ -3,6 +3,7 @@
 export interface StationSchedule {
   firstTrain: string; // "HH:MM" format
   lastTrain: string;
+  weekendLastTrain: string; // "HH:MM" – Hafta Sonu son sefer
   intervalMinutes: number;
 }
 
@@ -50,6 +51,20 @@ export interface UpcomingTrain {
   minutesFromNow: number;
   routeType: TrainRouteType;
   destination: string;
+}
+
+// ─── Full Timetable ────────────────────────────────────────
+
+export interface TimetableEntry {
+  time: string;
+  timeMinutes: number;
+  routeType: TrainRouteType;
+  destination: string;
+}
+
+export interface TimetableSection {
+  title: string;
+  data: TimetableEntry[];
 }
 
 // ─── Section List ───────────────────────────────────────────

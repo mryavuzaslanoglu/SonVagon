@@ -14,6 +14,9 @@ import { getTravelOffsets } from './travelTimeDeriver';
 
 const stationById = new Map(stations.map((s) => [s.id, s]));
 
+// Trains dwell at each station for ~25 seconds before departing
+const DWELL_SECONDS = 25;
+
 /**
  * Enumerate all train departures from origin for a given route.
  * Returns departure times in minutes-since-midnight.
@@ -137,11 +140,21 @@ export function getActiveTrains(
 
     const startOffset = offsets[segmentStart].minutesFromOrigin;
     const endOffset = offsets[segmentEnd].minutesFromOrigin;
-    const segmentDuration = endOffset - startOffset;
+    const segmentDurationSeconds = (endOffset - startOffset) * 60;
 
     let progress = 0;
-    if (segmentDuration > 0) {
-      progress = Math.max(0, Math.min(1, (elapsedMinutes - startOffset) / segmentDuration));
+    if (segmentDurationSeconds > 0) {
+      const elapsedInSegmentSeconds = (elapsedMinutes - startOffset) * 60;
+      if (elapsedInSegmentSeconds <= DWELL_SECONDS) {
+        // Train is dwelling at station
+        progress = 0;
+      } else {
+        // Train is moving between stations
+        const travelSeconds = segmentDurationSeconds - DWELL_SECONDS;
+        progress = travelSeconds > 0
+          ? Math.min(1, (elapsedInSegmentSeconds - DWELL_SECONDS) / travelSeconds)
+          : 1;
+      }
     }
 
     const pos = interpolatePosition(

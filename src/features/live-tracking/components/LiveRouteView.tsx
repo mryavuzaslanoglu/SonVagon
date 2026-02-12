@@ -1,7 +1,7 @@
-import React, { useMemo, useRef, useEffect, useCallback } from 'react';
-import { View, Text, FlatList, Dimensions } from 'react-native';
+import React, { useMemo, useRef, useEffect } from 'react';
+import { View, Text, ScrollView, Dimensions } from 'react-native';
 import { StyleSheet } from 'react-native-unistyles';
-import { Direction, TravelOffset } from '@/types';
+import { Direction, TravelOffset, TrainRouteType } from '@/types';
 import { useActiveTrainsByDirection } from '../hooks/useActiveTrains';
 import { getTravelOffsets } from '../utils/travelTimeDeriver';
 
@@ -14,11 +14,8 @@ const ITEM_WIDTH = 56;
 const SCREEN_WIDTH = Dimensions.get('window').width;
 const CARD_HORIZONTAL_PADDING = 16;
 const CONTENT_WIDTH = SCREEN_WIDTH - CARD_HORIZONTAL_PADDING * 2;
-
-// Track is vertically centered in the listWrapper.
-// "Top" labels sit above the track, "bottom" labels sit below.
-const TRACK_Y = 40; // vertical center of track line within listWrapper
-const LABEL_HEIGHT = 28;
+const TRACK_Y = 40;
+const TRAIN_DOT_SIZE = 12;
 
 function StationItem({
   stop,
@@ -33,7 +30,6 @@ function StationItem({
 }) {
   return (
     <View style={styles.stationItem}>
-      {/* Label above track */}
       {isTop && (
         <Text
           style={[
@@ -46,7 +42,6 @@ function StationItem({
         </Text>
       )}
 
-      {/* Dot on track */}
       <View
         style={[
           styles.stationDot(isHalkali),
@@ -54,7 +49,6 @@ function StationItem({
         ]}
       />
 
-      {/* Label below track */}
       {!isTop && (
         <Text
           style={[
@@ -74,60 +68,50 @@ const MemoizedStationItem = React.memo(StationItem);
 
 export function LiveRouteView({ direction, highlightStationId }: Props) {
   const trains = useActiveTrainsByDirection(direction);
-  const listRef = useRef<FlatList>(null);
+  const scrollRef = useRef<ScrollView>(null);
 
   const routeStations = useMemo(() => {
     const fullOffsets = getTravelOffsets(direction, 'full');
     return fullOffsets.offsets;
   }, [direction]);
 
+  // Map stationId → index in routeStations for positioning trains
+  const stationIndexMap = useMemo(() => {
+    const map = new Map<string, number>();
+    routeStations.forEach((s, i) => {
+      map.set(s.stationId, i);
+    });
+    return map;
+  }, [routeStations]);
+
   const highlightIndex = useMemo(() => {
     if (!highlightStationId) return -1;
     return routeStations.findIndex((s) => s.stationId === highlightStationId);
   }, [routeStations, highlightStationId]);
 
+  const sidePadding = (CONTENT_WIDTH - ITEM_WIDTH) / 2;
+  const totalContentWidth = routeStations.length * ITEM_WIDTH + sidePadding * 2;
+
   useEffect(() => {
-    if (highlightIndex >= 0 && listRef.current) {
+    if (highlightIndex >= 0 && scrollRef.current) {
       const timer = setTimeout(() => {
-        listRef.current?.scrollToIndex({
-          index: highlightIndex,
-          viewPosition: 0.5,
+        // sidePadding + i * ITEM_WIDTH + ITEM_WIDTH/2 = center of station i
+        // to center in viewport: scrollX = sidePadding + i * ITEM_WIDTH + ITEM_WIDTH/2 - CONTENT_WIDTH/2
+        // since sidePadding = (CONTENT_WIDTH - ITEM_WIDTH) / 2, this simplifies to i * ITEM_WIDTH
+        scrollRef.current?.scrollTo({
+          x: Math.max(0, highlightIndex * ITEM_WIDTH),
           animated: false,
         });
       }, 100);
       return () => clearTimeout(timer);
     }
-  }, [highlightIndex]);
-
-  const getItemLayout = useCallback(
-    (_: any, index: number) => ({
-      length: ITEM_WIDTH,
-      offset: ITEM_WIDTH * index,
-      index,
-    }),
-    [],
-  );
-
-  const renderItem = useCallback(
-    ({ item, index }: { item: TravelOffset; index: number }) => (
-      <MemoizedStationItem
-        stop={item}
-        isHighlighted={item.stationId === highlightStationId}
-        isHalkali={direction === 'toHalkali'}
-        isTop={index % 2 === 0}
-      />
-    ),
-    [highlightStationId, direction],
-  );
-
-  const keyExtractor = useCallback((item: TravelOffset) => item.stationId, []);
+  }, [highlightIndex, sidePadding]);
 
   if (routeStations.length === 0) return null;
 
   const isHalkali = direction === 'toHalkali';
   const dirLabel = isHalkali ? '← Halkalı' : 'Gebze →';
   const trainCount = trains.length;
-  const sidePadding = (CONTENT_WIDTH - ITEM_WIDTH) / 2;
 
   return (
     <View style={styles.container}>
@@ -144,24 +128,63 @@ export function LiveRouteView({ direction, highlightStationId }: Props) {
       </View>
 
       <View style={styles.listWrapper}>
-        <View style={styles.trackLine(isHalkali)} />
-
-        <FlatList
-          ref={listRef}
+        <ScrollView
+          ref={scrollRef}
           horizontal
-          data={routeStations}
-          renderItem={renderItem}
-          keyExtractor={keyExtractor}
-          getItemLayout={getItemLayout}
           showsHorizontalScrollIndicator={false}
-          contentContainerStyle={{ paddingHorizontal: sidePadding }}
-          onScrollToIndexFailed={(info) => {
-            listRef.current?.scrollToOffset({
-              offset: info.averageItemLength * info.index,
-              animated: false,
-            });
-          }}
-        />
+        >
+          <View style={{ width: totalContentWidth, height: 90 }}>
+            {/* Track line */}
+            <View
+              style={[
+                styles.trackLine(isHalkali),
+                {
+                  left: sidePadding + ITEM_WIDTH / 2,
+                  right: sidePadding + ITEM_WIDTH / 2,
+                },
+              ]}
+            />
+
+            {/* Station items */}
+            <View style={styles.stationsRow(sidePadding)}>
+              {routeStations.map((stop, index) => (
+                <MemoizedStationItem
+                  key={stop.stationId}
+                  stop={stop}
+                  isHighlighted={stop.stationId === highlightStationId}
+                  isHalkali={isHalkali}
+                  isTop={index % 2 === 0}
+                />
+              ))}
+            </View>
+
+            {/* Train dots overlay */}
+            {trains.map((train) => {
+              const fromIdx = stationIndexMap.get(train.currentStationId);
+              const toIdx = stationIndexMap.get(train.nextStationId);
+              if (fromIdx === undefined || toIdx === undefined) return null;
+
+              const stationProgress = fromIdx + train.progress * (toIdx - fromIdx);
+              const x =
+                sidePadding +
+                stationProgress * ITEM_WIDTH +
+                ITEM_WIDTH / 2;
+
+              return (
+                <View
+                  key={train.trainId}
+                  style={[
+                    styles.trainDot(isHalkali, train.routeType),
+                    {
+                      left: x - TRAIN_DOT_SIZE / 2,
+                      top: TRACK_Y - TRAIN_DOT_SIZE / 2 + 1,
+                    },
+                  ]}
+                />
+              );
+            })}
+          </View>
+        </ScrollView>
       </View>
 
       {trainCount === 0 && (
@@ -215,19 +238,21 @@ const styles = StyleSheet.create((theme) => ({
     color: theme.colors.textSecondary,
   },
   listWrapper: {
-    position: 'relative',
     height: 90,
   },
   trackLine: (isHalkali: boolean) => ({
     position: 'absolute' as const,
     top: TRACK_Y,
-    left: CARD_HORIZONTAL_PADDING,
-    right: CARD_HORIZONTAL_PADDING,
     height: 3,
     borderRadius: 1.5,
     backgroundColor: isHalkali
       ? theme.colors.halkaliBadge + '25'
       : theme.colors.gebzeBadge + '25',
+  }),
+  stationsRow: (paddingLeft: number) => ({
+    flexDirection: 'row' as const,
+    marginLeft: paddingLeft,
+    height: 90,
   }),
   stationItem: {
     width: ITEM_WIDTH,
@@ -264,6 +289,18 @@ const styles = StyleSheet.create((theme) => ({
     fontWeight: '800' as const,
     color: isHalkali ? theme.colors.halkaliBadge : theme.colors.gebzeBadge,
     fontSize: 9,
+  }),
+  trainDot: (isHalkali: boolean, routeType: TrainRouteType) => ({
+    position: 'absolute' as const,
+    width: TRAIN_DOT_SIZE,
+    height: TRAIN_DOT_SIZE,
+    borderRadius: TRAIN_DOT_SIZE / 2,
+    backgroundColor: routeType === 'full'
+      ? (isHalkali ? theme.colors.halkaliBadge : theme.colors.gebzeBadge)
+      : theme.colors.shortRoute,
+    borderWidth: 2,
+    borderColor: theme.colors.surface,
+    zIndex: 10,
   }),
   emptyText: {
     fontSize: 13,

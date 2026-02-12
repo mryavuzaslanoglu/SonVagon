@@ -1,13 +1,25 @@
-import { Station, Direction, NextTrainInfo, StationSchedule, TrainRouteType, UpcomingTrain } from '../types';
+import { Station, Direction, NextTrainInfo, StationSchedule, TrainRouteType, UpcomingTrain, TimetableEntry, TimetableSection } from '../types';
 import { parseTimeToMinutes, minutesToTimeString } from './timeUtils';
 import { SCHEDULE_CONFIG } from '../data/scheduleConfig';
 import { MIDNIGHT_THRESHOLD_MINUTES, MINUTES_IN_DAY } from '@/constants/time';
 
 // ─── Helpers ──────────────────────────────────────────────────
 
-function getDestination(direction: Direction, routeType: TrainRouteType): string {
+function getDestination(
+  direction: Direction,
+  routeType: TrainRouteType,
+  departureTimeMinutes?: number,
+): string {
   const d = SCHEDULE_CONFIG.destinations;
   if (direction === 'toHalkali') {
+    if (routeType === 'short' && departureTimeMinutes !== undefined) {
+      const cutoff = SCHEDULE_CONFIG.shortToHalkaliCutoffHour * 60;
+      // Normalize departure time to 0-1439 range for comparison
+      const normalizedDep = departureTimeMinutes % 1440;
+      if (normalizedDep >= cutoff || normalizedDep < 300) {
+        return d.shortToHalkaliLate;
+      }
+    }
     return routeType === 'full' ? d.fullToHalkali : d.shortToHalkali;
   }
   return routeType === 'full' ? d.fullToGebze : d.shortToGebze;
@@ -39,7 +51,6 @@ function calcNextFromSchedule(
   routeType: TrainRouteType,
 ): NextTrainInfo {
   const { firstTrain, lastTrain, intervalMinutes } = schedule;
-  const destination = getDestination(direction, routeType);
   const directionLabel = direction === 'toHalkali' ? 'Halkalı' : 'Gebze';
 
   const firstMinutes = parseTimeToMinutes(firstTrain);
@@ -57,6 +68,7 @@ function calcNextFromSchedule(
   // Before service
   if (adjustedNow < firstMinutes) {
     const diffMs = ((firstMinutes - adjustedNow) * 60 - nowSeconds) * 1000;
+    const destination = getDestination(direction, routeType, firstMinutes);
     return {
       direction, directionLabel,
       remainingMs: diffMs,
@@ -70,6 +82,7 @@ function calcNextFromSchedule(
 
   // After service
   if (adjustedNow > lastMinutes) {
+    const destination = getDestination(direction, routeType);
     return {
       direction, directionLabel,
       remainingMs: 0, remainingMinutes: 0, remainingSeconds: 0,
@@ -89,6 +102,7 @@ function calcNextFromSchedule(
   const nextTrainMinutes = firstMinutes + trainIndex * intervalMinutes;
 
   if (nextTrainMinutes > lastMinutes) {
+    const destination = getDestination(direction, routeType);
     return {
       direction, directionLabel,
       remainingMs: 0, remainingMinutes: 0, remainingSeconds: 0,
@@ -98,6 +112,7 @@ function calcNextFromSchedule(
     };
   }
 
+  const destination = getDestination(direction, routeType, nextTrainMinutes);
   const remainingMs = secondsToNext * 1000;
   return {
     direction, directionLabel,
@@ -169,7 +184,6 @@ function getTrainsFromSchedule(
   routeType: TrainRouteType,
 ): UpcomingTrain[] {
   const { firstTrain, lastTrain, intervalMinutes } = schedule;
-  const destination = getDestination(direction, routeType);
 
   const firstMinutes = parseTimeToMinutes(firstTrain);
   let lastMinutes = parseTimeToMinutes(lastTrain);
@@ -193,7 +207,7 @@ function getTrainsFromSchedule(
         time: minutesToTimeString(trainMin),
         minutesFromNow: Math.max(0, trainMin - adjustedNow),
         routeType,
-        destination,
+        destination: getDestination(direction, routeType, trainMin),
       });
     }
     return result;
@@ -216,7 +230,7 @@ function getTrainsFromSchedule(
       time: minutesToTimeString(trainMin),
       minutesFromNow: Math.max(0, Math.ceil(trainMin - adjustedNow)),
       routeType,
-      destination,
+      destination: getDestination(direction, routeType, trainMin),
     });
   }
   return result;
@@ -258,4 +272,60 @@ export function getStationCountdowns(
     toHalkali: calculateNextTrain(station, 'toHalkali', now),
     toGebze: calculateNextTrain(station, 'toGebze', now),
   };
+}
+
+// ─── Full Timetable ──────────────────────────────────────────
+
+function entriesFromSchedule(
+  schedule: StationSchedule,
+  direction: Direction,
+  routeType: TrainRouteType,
+): TimetableEntry[] {
+  const { firstTrain, lastTrain, intervalMinutes } = schedule;
+  const firstMin = parseTimeToMinutes(firstTrain);
+  let lastMin = parseTimeToMinutes(lastTrain);
+  if (lastMin < firstMin) lastMin += MINUTES_IN_DAY;
+
+  const entries: TimetableEntry[] = [];
+  for (let m = firstMin; m <= lastMin; m += intervalMinutes) {
+    entries.push({
+      time: minutesToTimeString(m),
+      timeMinutes: m,
+      routeType,
+      destination: getDestination(direction, routeType, m),
+    });
+  }
+  return entries;
+}
+
+export function getAllDepartures(
+  station: Station,
+  direction: Direction,
+): TimetableSection[] {
+  const fullSchedule = station.schedule[direction];
+  const shortKey = direction === 'toHalkali' ? 'shortToHalkali' : 'shortToGebze';
+  const shortSchedule = station.schedule[shortKey as keyof typeof station.schedule] as StationSchedule | null | undefined;
+
+  const fullEntries = fullSchedule ? entriesFromSchedule(fullSchedule, direction, 'full') : [];
+  const shortEntries = shortSchedule ? entriesFromSchedule(shortSchedule, direction, 'short') : [];
+
+  const all = [...fullEntries, ...shortEntries].sort((a, b) => a.timeMinutes - b.timeMinutes);
+
+  // Group by hour
+  const groups = new Map<number, TimetableEntry[]>();
+  for (const entry of all) {
+    const hour = Math.floor((entry.timeMinutes % MINUTES_IN_DAY) / 60);
+    if (!groups.has(hour)) groups.set(hour, []);
+    groups.get(hour)!.push(entry);
+  }
+
+  const sections: TimetableSection[] = [];
+  for (const [hour, data] of groups) {
+    sections.push({
+      title: `${hour.toString().padStart(2, '0')}:00`,
+      data,
+    });
+  }
+
+  return sections;
 }

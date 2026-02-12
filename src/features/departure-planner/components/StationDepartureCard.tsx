@@ -1,8 +1,8 @@
-import React, { memo } from 'react';
+import React, { memo, useMemo } from 'react';
 import { View, Text } from 'react-native';
 import { StyleSheet } from 'react-native-unistyles';
 import { Ionicons } from '@expo/vector-icons';
-import { StationDeparturePlan } from '@/types';
+import { StationDeparturePlan, CatchableTrain } from '@/types';
 import { formatDistance } from '@/utils/locationUtils';
 import { CatchableTrainRow } from './CatchableTrainRow';
 
@@ -10,12 +10,40 @@ interface Props {
   plan: StationDeparturePlan;
 }
 
+interface DestinationGroup {
+  destination: string;
+  isFull: boolean;
+  trains: CatchableTrain[];
+}
+
 export const StationDepartureCard = memo(function StationDepartureCard({
   plan,
 }: Props) {
   const { stationInfo, catchableTrains, hasTrains } = plan;
-  const { station, distanceMeters, walkingDurationText } = stationInfo;
+  const { station, distanceMeters, walkingDurationText, walkingDurationSeconds } = stationInfo;
   const hasRecommended = catchableTrains.some((t) => t.isRecommended);
+  const walkingMinutes = Math.ceil((walkingDurationSeconds ?? 0) / 60);
+
+  const groups = useMemo((): DestinationGroup[] => {
+    const map = new Map<string, DestinationGroup>();
+    for (const ct of catchableTrains) {
+      const key = ct.train.destination;
+      if (!map.has(key)) {
+        map.set(key, {
+          destination: key,
+          isFull: ct.train.routeType === 'full',
+          trains: [],
+        });
+      }
+      map.get(key)!.trains.push(ct);
+    }
+    // Full line first, short line second
+    return Array.from(map.values()).sort((a, b) =>
+      a.isFull === b.isFull ? 0 : a.isFull ? -1 : 1,
+    );
+  }, [catchableTrains]);
+
+  const hasMultipleDestinations = groups.length > 1;
 
   return (
     <View style={[styles.card, hasRecommended && styles.cardRecommended]}>
@@ -39,8 +67,32 @@ export const StationDepartureCard = memo(function StationDepartureCard({
 
       {hasTrains ? (
         <View style={styles.trainList}>
-          {catchableTrains.map((ct, i) => (
-            <CatchableTrainRow key={`${ct.train.time}-${i}`} item={ct} />
+          {groups.map((group) => (
+            <View key={group.destination}>
+              {hasMultipleDestinations && (
+                <View style={styles.groupHeader}>
+                  <View
+                    style={[
+                      styles.groupDot,
+                      group.isFull ? styles.fullRouteDot : styles.shortRouteDot,
+                    ]}
+                  />
+                  <Text style={styles.groupTitle}>
+                    {group.destination} seferleri
+                  </Text>
+                </View>
+              )}
+              {group.trains.map((ct, i) => (
+                <CatchableTrainRow
+                  key={`${ct.train.time}-${i}`}
+                  item={ct}
+                  stationName={station.name}
+                  stationLat={station.latitude}
+                  stationLng={station.longitude}
+                  walkingMinutes={walkingMinutes}
+                />
+              ))}
+            </View>
           ))}
         </View>
       ) : (
@@ -104,7 +156,31 @@ const styles = StyleSheet.create((theme) => ({
     color: theme.colors.textMuted,
   },
   trainList: {
-    gap: theme.spacing.xs,
+    gap: theme.spacing.sm,
+  },
+  groupHeader: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    gap: theme.spacing.sm,
+    marginTop: theme.spacing.xs,
+    marginBottom: theme.spacing.xs,
+    paddingHorizontal: theme.spacing.md,
+  },
+  groupDot: {
+    width: 8,
+    height: 8,
+    borderRadius: 4,
+  },
+  fullRouteDot: {
+    backgroundColor: theme.colors.fullRoute,
+  },
+  shortRouteDot: {
+    backgroundColor: theme.colors.shortRoute,
+  },
+  groupTitle: {
+    fontSize: theme.fontSize.sm,
+    fontWeight: theme.fontWeight.semibold,
+    color: theme.colors.textSecondary,
   },
   noTrains: {
     paddingVertical: theme.spacing.md,

@@ -1,4 +1,4 @@
-import React from "react";
+import React, { useState } from "react";
 import { View, Text, ScrollView, TouchableOpacity } from "react-native";
 import { useLocalSearchParams, Stack } from "expo-router";
 import { Ionicons } from "@expo/vector-icons";
@@ -13,6 +13,7 @@ import {
 } from "@/utils/scheduleCalculator";
 import { TrainProgressBar } from "@/components/TrainProgressBar";
 import { LiveRouteView } from "@/features/live-tracking";
+import { FullTimetableModal } from "@/features/stations";
 import { useHapticFavorite } from "@/hooks/useHapticFavorite";
 import { UpcomingTrain, NextTrainInfo, Direction } from "@/types";
 
@@ -116,9 +117,11 @@ function CompactDirectionCard({
 function UpcomingSection({
   stationId,
   direction,
+  onShowAll,
 }: {
   stationId: string;
   direction: Direction;
+  onShowAll: () => void;
 }) {
   const now = useNow();
   const station = stationMap.get(stationId)!;
@@ -144,21 +147,43 @@ function UpcomingSection({
           </View>
         ))}
       </View>
+      <TouchableOpacity style={styles.showAllBtn} onPress={onShowAll}>
+        <Ionicons
+          name="time-outline"
+          size={16}
+          color={styles.showAllText.color}
+        />
+        <Text style={styles.showAllText}>Tüm Saatleri Gör</Text>
+        <Ionicons
+          name="chevron-forward"
+          size={14}
+          color={styles.showAllText.color}
+        />
+      </TouchableOpacity>
     </View>
   );
 }
 
 function ScheduleInfo({ stationId }: { stationId: string }) {
   const station = stationMap.get(stationId)!;
-  const schedules = [
-    { key: "toHalkali" as const, label: "← Halkalı" },
-    { key: "toGebze" as const, label: "Gebze →" },
-  ].filter((s) => station.schedule[s.key]);
+
+  type ScheduleEntry = { key: string; label: string };
+  const allSchedules: ScheduleEntry[] = [
+    { key: "toHalkali", label: "← Halkalı" },
+    { key: "toGebze", label: "Gebze →" },
+    { key: "shortToHalkali", label: "← Ataköy (Kısa)" },
+    { key: "shortToGebze", label: "Pendik → (Kısa)" },
+  ].filter((s) => {
+    const sched = station.schedule[s.key as keyof typeof station.schedule];
+    return sched != null;
+  });
 
   return (
     <View style={styles.scheduleCard}>
-      {schedules.map(({ key, label }) => {
-        const sched = station.schedule[key]!;
+      {allSchedules.map(({ key, label }) => {
+        const sched = station.schedule[key as keyof typeof station.schedule]!;
+        if (!sched || typeof sched !== "object" || !("firstTrain" in sched))
+          return null;
         return (
           <View key={key} style={styles.scheduleDirection}>
             <Text style={styles.scheduleDirLabel}>{label}</Text>
@@ -204,6 +229,7 @@ export default function StationDetailScreen() {
   const station = stationMap.get(id ?? "");
   const isFav = useFavoritesStore((s) => s.isFavorite);
   const toggleFavorite = useFavoritesStore((s) => s.toggleFavorite);
+  const [timetableDir, setTimetableDir] = useState<Direction | null>(null);
 
   if (!station) {
     return (
@@ -293,14 +319,32 @@ export default function StationDetailScreen() {
 
       {/* Upcoming Trains */}
       {station.schedule.toHalkali && (
-        <UpcomingSection stationId={station.id} direction="toHalkali" />
+        <UpcomingSection
+          stationId={station.id}
+          direction="toHalkali"
+          onShowAll={() => setTimetableDir("toHalkali")}
+        />
       )}
       {station.schedule.toGebze && (
-        <UpcomingSection stationId={station.id} direction="toGebze" />
+        <UpcomingSection
+          stationId={station.id}
+          direction="toGebze"
+          onShowAll={() => setTimetableDir("toGebze")}
+        />
       )}
 
       {/* Schedule Info */}
       <ScheduleInfo stationId={station.id} />
+
+      {/* Full Timetable Modal */}
+      {timetableDir && (
+        <FullTimetableModal
+          visible={!!timetableDir}
+          onClose={() => setTimetableDir(null)}
+          station={station}
+          direction={timetableDir}
+        />
+      )}
     </ScrollView>
   );
 }
@@ -500,6 +544,19 @@ const styles = StyleSheet.create((theme) => ({
     fontSize: 10,
     fontWeight: "500",
     color: theme.colors.textSecondary,
+  },
+  showAllBtn: {
+    flexDirection: "row",
+    alignItems: "center",
+    justifyContent: "center",
+    gap: 4,
+    marginTop: theme.spacing.sm,
+    paddingVertical: theme.spacing.sm,
+  },
+  showAllText: {
+    fontSize: 13,
+    fontWeight: "600" as const,
+    color: theme.colors.primary,
   },
 
   // ─── Schedule Info ─────────────────────────────────────────

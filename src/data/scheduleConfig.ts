@@ -1,8 +1,8 @@
 export const SCHEDULE_CONFIG = {
   // Full line (Halkalı-Gebze) interval
   fullLineInterval: 15,
-  // Short line (Ataköy-Pendik) interval
-  shortLineInterval: 8,
+  // Short line (Ataköy-Pendik) individual interval (combined with full line gives ~7-8 min)
+  shortLineInterval: 15,
   // Map region for initial view
   mapRegion: {
     latitude: 40.9800,
@@ -18,5 +18,8 @@ export const SCHEDULE_CONFIG = {
     fullToHalkali: 'Halkalı',
     shortToGebze: 'Pendik',
     shortToHalkali: 'Ataköy',
+    shortToHalkaliLate: 'Zeytinburnu',
   },
+  // After this hour, short line toHalkali trains terminate at Zeytinburnu instead of Ataköy
+  shortToHalkaliCutoffHour: 21,
 };
