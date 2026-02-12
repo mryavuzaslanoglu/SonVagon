@@ -117,11 +117,9 @@ function CompactDirectionCard({
 function UpcomingSection({
   stationId,
   direction,
-  onShowAll,
 }: {
   stationId: string;
   direction: Direction;
-  onShowAll: () => void;
 }) {
   const now = useNow();
   const station = stationMap.get(stationId)!;
@@ -147,20 +145,34 @@ function UpcomingSection({
           </View>
         ))}
       </View>
-      <TouchableOpacity style={styles.showAllBtn} onPress={onShowAll}>
-        <Ionicons
-          name="time-outline"
-          size={16}
-          color={styles.showAllText.color}
-        />
-        <Text style={styles.showAllText}>Tüm Saatleri Gör</Text>
-        <Ionicons
-          name="chevron-forward"
-          size={14}
-          color={styles.showAllText.color}
-        />
-      </TouchableOpacity>
     </View>
+  );
+}
+
+function ShowAllButton({
+  direction,
+  onPress,
+}: {
+  direction: Direction;
+  onPress: () => void;
+}) {
+  const isHalkali = direction === "toHalkali";
+  return (
+    <TouchableOpacity style={styles.showAllBtn} onPress={onPress}>
+      <Ionicons
+        name="time-outline"
+        size={16}
+        color={styles.showAllText.color}
+      />
+      <Text style={styles.showAllText}>
+        Tüm Saatleri Gör ({isHalkali ? "Halkalı" : "Gebze"})
+      </Text>
+      <Ionicons
+        name="chevron-forward"
+        size={14}
+        color={styles.showAllText.color}
+      />
+    </TouchableOpacity>
   );
 }
 
@@ -318,18 +330,22 @@ export default function StationDetailScreen() {
 
       {/* Upcoming Trains */}
       {station.schedule.toHalkali && (
-        <UpcomingSection
-          stationId={station.id}
-          direction="toHalkali"
-          onShowAll={() => setTimetableDir("toHalkali")}
-        />
+        <>
+          <UpcomingSection stationId={station.id} direction="toHalkali" />
+          <ShowAllButton
+            direction="toHalkali"
+            onPress={() => setTimetableDir("toHalkali")}
+          />
+        </>
       )}
       {station.schedule.toGebze && (
-        <UpcomingSection
-          stationId={station.id}
-          direction="toGebze"
-          onShowAll={() => setTimetableDir("toGebze")}
-        />
+        <>
+          <UpcomingSection stationId={station.id} direction="toGebze" />
+          <ShowAllButton
+            direction="toGebze"
+            onPress={() => setTimetableDir("toGebze")}
+          />
+        </>
       )}
 
       {/* Schedule Info */}

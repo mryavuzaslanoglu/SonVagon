@@ -102,6 +102,21 @@ function calcNextFromSchedule(
   const nextTrainMinutes = firstMinutes + trainIndex * intervalMinutes;
 
   if (nextTrainMinutes > lastMinutes) {
+    // The interval grid overshot lastTrain, but the last train may not have departed yet.
+    // Show lastTrain as the next departure if we haven't passed it.
+    const lastTrainDiffMs = ((lastMinutes - adjustedNow) * 60 - nowSeconds) * 1000;
+    if (lastTrainDiffMs > 0) {
+      const destination = getDestination(direction, routeType, lastMinutes);
+      return {
+        direction, directionLabel,
+        remainingMs: lastTrainDiffMs,
+        remainingMinutes: Math.floor(lastTrainDiffMs / 60000),
+        remainingSeconds: Math.ceil((lastTrainDiffMs % 60000) / 1000),
+        nextTrainTime: minutesToTimeString(lastMinutes),
+        isServiceOver: false, isBeforeService: false,
+        firstTrain, lastTrain, routeType, destination,
+      };
+    }
     const destination = getDestination(direction, routeType);
     return {
       direction, directionLabel,
@@ -222,10 +237,23 @@ function getTrainsFromSchedule(
   const startIndex = Math.ceil(elapsedSeconds / intervalSeconds);
 
   const result: UpcomingTrain[] = [];
+  let addedLastTrain = false;
   for (let i = 0; i < count; i++) {
     const idx = startIndex + i;
     const trainMin = firstMinutes + idx * intervalMinutes;
-    if (trainMin > lastMinutes) break;
+    if (trainMin > lastMinutes) {
+      // Add the official last train if it hasn't been added and is still in the future
+      if (!addedLastTrain && lastMinutes > adjustedNow) {
+        result.push({
+          time: minutesToTimeString(lastMinutes),
+          minutesFromNow: Math.max(0, Math.ceil(lastMinutes - adjustedNow)),
+          routeType,
+          destination: getDestination(direction, routeType, lastMinutes),
+        });
+      }
+      break;
+    }
+    if (trainMin === lastMinutes) addedLastTrain = true;
     result.push({
       time: minutesToTimeString(trainMin),
       minutesFromNow: Math.max(0, Math.ceil(trainMin - adjustedNow)),
